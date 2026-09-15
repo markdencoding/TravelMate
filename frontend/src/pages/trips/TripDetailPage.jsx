@@ -8,6 +8,7 @@ import DestinationList from '../../components/destinations/DestinationList';
 import DestinationForm from '../../components/destinations/DestinationForm';
 import DestinationMap from '../../components/destinations/DestinationMap';
 import ItinerarySection from '../../components/itinerary/ItinerarySection';
+import ExpenseSection from '../../components/expenses/ExpenseSection';
 import './Trips.css';
 
 export default function TripDetailPage() {
@@ -214,16 +215,14 @@ export default function TripDetailPage() {
       {/* Itinerary Section */}
       <ItinerarySection tripId={id} destinations={destinations} />
 
+      {/* Expenses Section */}
+      <ExpenseSection tripId={id} />
+
       {/* Future Modules */}
       <div className="trip-modules-grid">
         <div className="trip-module-placeholder">
           <h3>🌤️ Weather</h3>
           <p>Check the forecast.</p>
-          <span className="badge">Coming in next phase</span>
-        </div>
-        <div className="trip-module-placeholder">
-          <h3>💳 Expenses</h3>
-          <p>Track your budget and spending.</p>
           <span className="badge">Coming in next phase</span>
         </div>
       </div>

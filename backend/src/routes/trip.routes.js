@@ -30,6 +30,7 @@ const updateTripSchema = {
 
 const destinationRoutes = require('./destination.routes');
 const itineraryRoutes = require('./itinerary.routes');
+const expenseRoutes = require('./expense.routes');
 
 // All trip routes require authentication
 router.use(authenticate);
@@ -39,6 +40,9 @@ router.use('/:tripId/destinations', destinationRoutes);
 
 // Mount nested itinerary routes
 router.use('/:tripId/itinerary', itineraryRoutes);
+
+// Mount nested expense routes
+router.use('/:tripId/expenses', expenseRoutes);
 
 // Routes
 router.route('/')
