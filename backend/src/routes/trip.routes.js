@@ -28,8 +28,13 @@ const updateTripSchema = {
   }
 };
 
+const destinationRoutes = require('./destination.routes');
+
 // All trip routes require authentication
 router.use(authenticate);
+
+// Mount nested destination routes
+router.use('/:tripId/destinations', destinationRoutes);
 
 // Routes
 router.route('/')

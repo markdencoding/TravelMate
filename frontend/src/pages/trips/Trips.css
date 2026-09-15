@@ -211,3 +211,131 @@
   font-weight: 600;
   margin-top: var(--space-sm);
 }
+
+/* Destinations Module */
+.destinations-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.destinations-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.destinations-section__header h2 {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text);
+}
+
+.destinations-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 900px) {
+  .destinations-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.destination-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: var(--space-sm);
+}
+
+.destination-card {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.destination-card__info {
+  flex: 1;
+}
+
+.destination-card__name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.destination-card__address {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.destination-card__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  margin-top: var(--space-sm);
+}
+
+.destination-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.destination-map {
+  height: 500px;
+  background-color: var(--color-background);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-light);
+  overflow: hidden;
+}
+
+.destination-map--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.destination-map__placeholder {
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* Autocomplete Dropdown */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.autocomplete-item {
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background-color: var(--color-background);
+}
