@@ -1,0 +1,151 @@
+/* Itinerary Layout */
+.itinerary-section {
+  margin-top: 2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.itinerary-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+.itinerary-days-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Day Card */
+.itinerary-day-card {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.itinerary-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.itinerary-day-title h3 {
+  display: inline-block;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.itinerary-day-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Activity Items (Timeline Style) */
+.itinerary-activities {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.itinerary-activity-item {
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
+
+.activity-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.activity-time {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.activity-node {
+  width: 12px;
+  height: 12px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.activity-line {
+  width: 2px;
+  background-color: var(--border);
+  flex-grow: 1;
+  margin-top: 4px;
+}
+
+.itinerary-activity-item:last-child .activity-line {
+  display: none;
+}
+
+/* Activity Content */
+.activity-content {
+  flex-grow: 1;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.activity-content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.activity-content-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.activity-actions {
+  display: flex;
+}
+
+.activity-meta {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.activity-desc {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.activity-cost {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--success, #10b981); /* fallback if not defined */
+}
+
+/* Forms */
+.itinerary-form {
+  background-color: var(--background);
+  border: 1px dashed var(--border);
+  padding: 1.25rem;
+}
+
+.itinerary-form h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.activity-form {
+  border-left: 3px solid var(--primary);
+}
