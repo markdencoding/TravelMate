@@ -8,6 +8,10 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 
+import TripsPage from './pages/trips/TripsPage';
+import TripFormPage from './pages/trips/TripFormPage';
+import TripDetailPage from './pages/trips/TripDetailPage';
+
 /**
  * TravelMate — Root Application Component
  * Sets up routing with auth-guarded and public routes.
@@ -32,9 +36,14 @@ export default function App() {
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
+            
+            {/* Trip Routes */}
+            <Route path="/trips" element={<TripsPage />} />
+            <Route path="/trips/new" element={<TripFormPage />} />
+            <Route path="/trips/:id" element={<TripDetailPage />} />
+            <Route path="/trips/:id/edit" element={<TripFormPage />} />
+            
             {/* Future routes will be added here:
-              <Route path="/trips" element={<TripsPage />} />
-              <Route path="/trips/:id" element={<TripDetailPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             */}
