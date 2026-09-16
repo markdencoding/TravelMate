@@ -54,4 +54,7 @@ router.route('/:id')
   .put(validate(updateTripSchema), tripController.updateTrip)
   .delete(tripController.deleteTrip);
 
+router.route('/:id/report')
+  .get(tripController.getTripReport);
+
 module.exports = router;

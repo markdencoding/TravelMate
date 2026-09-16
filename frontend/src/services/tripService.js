@@ -53,6 +53,16 @@ const tripService = {
   async deleteTrip(id) {
     const response = await api.delete(`/trips/${id}`);
     return response.data;
+  },
+
+  /**
+   * Get trip report by ID.
+   * @param {string} id - Trip ID
+   * @returns {Promise<object>} API response data
+   */
+  async getTripReport(id) {
+    const response = await api.get(`/trips/${id}/report`);
+    return response.data;
   }
 };
 

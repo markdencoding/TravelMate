@@ -1,0 +1,28 @@
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+  
+  .print-hide, 
+  .app-layout__sidebar, 
+  .app-layout__header {
+    display: none !important;
+  }
+  
+  .app-layout__main {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .trip-report-page {
+    max-width: 100% !important;
+    padding: 0;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+}

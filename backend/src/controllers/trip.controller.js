@@ -1,5 +1,21 @@
 const tripService = require('../services/trip.service');
-const { success } = require('../utils/responseHelper');
+const reportService = require('../services/report.service');
+const { success, error } = require('../utils/responseHelper');
+
+/**
+ * Get report for a specific trip
+ */
+exports.getTripReport = async (req, res, next) => {
+  try {
+    const report = await reportService.getTripReport(req.params.id, req.user.id);
+    if (!report) {
+      return error(res, 'Trip not found or access denied', null, 404);
+    }
+    return success(res, 'Trip report generated successfully', report);
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
  * Get all trips for the authenticated user
