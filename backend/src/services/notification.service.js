@@ -8,6 +8,14 @@ class NotificationService {
        ORDER BY created_at DESC`,
       [userId]
     );
+    
+    // Strip deterministic identity payload so it remains friendly in the UI
+    result.rows.forEach(row => {
+      if (row.message && row.message.includes('<!--ID:')) {
+        row.message = row.message.split('<!--ID:')[0];
+      }
+    });
+    
     return result.rows;
   }
 
@@ -57,10 +65,11 @@ class NotificationService {
   /**
    * Internal method used by reminderService for duplicate prevention
    */
-  async checkExists(userId, title) {
+  async checkExists(userId, identity) {
+    const searchString = `%<!--ID:${identity}-->%`;
     const result = await db.query(
-      `SELECT 1 FROM notifications WHERE user_id = $1 AND title = $2 LIMIT 1`,
-      [userId, title]
+      `SELECT 1 FROM notifications WHERE user_id = $1 AND message LIKE $2 LIMIT 1`,
+      [userId, searchString]
     );
     return result.rowCount > 0;
   }

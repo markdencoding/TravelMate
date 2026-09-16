@@ -15,13 +15,14 @@ class ReminderService {
       `);
       for (const trip of trips5.rows) {
         const title = `Upcoming Trip: ${trip.name} (5 Days)`;
-        const exists = await notificationService.checkExists(trip.user_id, title);
+        const identity = `trip:${trip.id}:reminder:5d`;
+        const exists = await notificationService.checkExists(trip.user_id, identity);
         if (!exists) {
           await notificationService.createNotification(
             trip.user_id,
             'trip',
             title,
-            `Your trip to ${trip.name} starts in 5 days.`
+            `Your trip to ${trip.name} starts in 5 days.<!--ID:${identity}-->`
           );
           generated++;
         } else {
@@ -37,13 +38,14 @@ class ReminderService {
       `);
       for (const trip of trips3.rows) {
         const title = `Upcoming Trip: ${trip.name} (3 Days)`;
-        const exists = await notificationService.checkExists(trip.user_id, title);
+        const identity = `trip:${trip.id}:reminder:3d`;
+        const exists = await notificationService.checkExists(trip.user_id, identity);
         if (!exists) {
           await notificationService.createNotification(
             trip.user_id,
             'trip',
             title,
-            `Your trip to ${trip.name} starts in 3 days.`
+            `Your trip to ${trip.name} starts in 3 days.<!--ID:${identity}-->`
           );
           generated++;
         } else {
@@ -61,13 +63,14 @@ class ReminderService {
       `);
       for (const activity of activities.rows) {
         const title = `Upcoming Activity: ${activity.name}`;
-        const exists = await notificationService.checkExists(activity.user_id, title);
+        const identity = `activity:${activity.id}:reminder:1d`;
+        const exists = await notificationService.checkExists(activity.user_id, identity);
         if (!exists) {
           await notificationService.createNotification(
             activity.user_id,
             'reminder',
             title,
-            `Your activity "${activity.name}" is scheduled for tomorrow.`
+            `Your activity "${activity.name}" is scheduled for tomorrow.<!--ID:${identity}-->`
           );
           generated++;
         } else {
