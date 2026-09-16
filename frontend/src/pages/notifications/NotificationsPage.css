@@ -1,0 +1,17 @@
+.notifications-page {
+  padding-bottom: var(--space-xl);
+}
+
+.notification-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.notification-card.unread {
+  background-color: var(--primary-light);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.notification-card:not(.unread):hover {
+  opacity: 1;
+  background-color: var(--gray-50);
+}

@@ -1,6 +1,7 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import notificationService from '../../services/notificationService';
 import './AppLayout.css';
 
 /**
@@ -11,7 +12,29 @@ import './AppLayout.css';
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchUnread() {
+      try {
+        const res = await notificationService.getUnreadCount();
+        if (res.success) {
+          setUnreadCount(res.data.count);
+        }
+      } catch (err) {
+        console.error('Failed to fetch unread count', err);
+      }
+    }
+    
+    // Fetch initially
+    fetchUnread();
+    
+    // Refetch when navigating to the layout or every 60s
+    const interval = setInterval(fetchUnread, 60000);
+    return () => clearInterval(interval);
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logout();
@@ -57,8 +80,14 @@ export default function AppLayout() {
             className={({ isActive }) => `app-layout__nav-link ${isActive ? 'app-layout__nav-link--active' : ''}`}
             onClick={closeSidebar}
           >
-            <span className="app-layout__nav-icon">🔔</span>
-            Notifications
+            <span className="app-layout__nav-icon flex justify-between items-center w-full pr-4">
+              <span>🔔 Notifications</span>
+              {unreadCount > 0 && (
+                <span className="bg-error text-white text-xs font-bold px-2 py-1 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </span>
           </NavLink>
 
           <NavLink

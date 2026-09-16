@@ -11,6 +11,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import TripsPage from './pages/trips/TripsPage';
 import TripFormPage from './pages/trips/TripFormPage';
 import TripDetailPage from './pages/trips/TripDetailPage';
+import NotificationsPage from './pages/notifications/NotificationsPage';
 
 /**
  * TravelMate — Root Application Component
@@ -44,9 +45,10 @@ export default function App() {
             <Route path="/trips/:id/edit" element={<TripFormPage />} />
             
             {/* Future routes will be added here:
-              <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
             */}
+            
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Redirects */}

@@ -33,11 +33,26 @@ async function start() {
   });
 }
 
+const reminderService = require('./services/reminder.service');
+
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {
   console.error('[Server] Unhandled rejection:', err.message);
   process.exit(1);
 });
+
+// Reminder Scheduler
+// Run once shortly after startup (5 seconds)
+setTimeout(() => {
+  console.log('[Scheduler] Running startup reminder check...');
+  reminderService.generateReminders();
+}, 5000);
+
+// Run every hour
+setInterval(() => {
+  console.log('[Scheduler] Running hourly reminder check...');
+  reminderService.generateReminders();
+}, 60 * 60 * 1000);
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

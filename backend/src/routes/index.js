@@ -7,6 +7,7 @@ const tripRoutes = require('./trip.routes');
 const mapsRoutes = require('./maps.routes');
 const dashboardRoutes = require('./dashboard.routes');
 const weatherRoutes = require('./weather.routes');
+const notificationRoutes = require('./notification.routes');
 
 // Mount route modules
 router.use('/health', healthRoutes);
@@ -15,5 +16,6 @@ router.use('/trips', tripRoutes);
 router.use('/maps', mapsRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/weather', weatherRoutes);
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;
