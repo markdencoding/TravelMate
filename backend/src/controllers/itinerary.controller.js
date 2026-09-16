@@ -53,6 +53,18 @@ exports.createActivity = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { tripId, dayId } = req.params;
+    const { name, notes, estimated_cost, start_time, end_time } = req.body;
+    
+    if (!name || name.trim().length === 0) return res.status(400).json({ success: false, message: 'Activity name is required' });
+    if (name.length > 200) return res.status(400).json({ success: false, message: 'Activity name must not exceed 200 characters' });
+    if (notes && notes.length > 2000) return res.status(400).json({ success: false, message: 'Notes must not exceed 2000 characters' });
+    if (estimated_cost !== undefined && estimated_cost < 0) return res.status(400).json({ success: false, message: 'Estimated cost cannot be negative' });
+    
+    // Time relationship check (assuming "HH:MM" format string comparison is safe enough for basic boundaries)
+    if (start_time && end_time && start_time > end_time) {
+      return res.status(400).json({ success: false, message: 'Start time cannot be after end time' });
+    }
+
     const activity = await itineraryService.createActivity(tripId, dayId, userId, req.body);
     return success(res, 'Activity created successfully', activity, 201);
   } catch (error) {
@@ -64,6 +76,19 @@ exports.updateActivity = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { tripId, dayId, activityId } = req.params;
+    const { name, notes, estimated_cost, start_time, end_time } = req.body;
+    
+    if (name !== undefined) {
+      if (name.trim().length === 0) return res.status(400).json({ success: false, message: 'Activity name is required' });
+      if (name.length > 200) return res.status(400).json({ success: false, message: 'Activity name must not exceed 200 characters' });
+    }
+    if (notes && notes.length > 2000) return res.status(400).json({ success: false, message: 'Notes must not exceed 2000 characters' });
+    if (estimated_cost !== undefined && estimated_cost < 0) return res.status(400).json({ success: false, message: 'Estimated cost cannot be negative' });
+    
+    if (start_time && end_time && start_time > end_time) {
+      return res.status(400).json({ success: false, message: 'Start time cannot be after end time' });
+    }
+
     const activity = await itineraryService.updateActivity(tripId, dayId, activityId, userId, req.body);
     return success(res, 'Activity updated successfully', activity);
   } catch (error) {

@@ -167,7 +167,9 @@ export default function ItinerarySection({ tripId, destinations }) {
                     </div>
                     
                     {(act.location || act.destination_id) && (
-                      <div className="activity-meta">📍 {act.location || destinations.find(d => d.id === act.destination_id)?.name}</div>
+                      <div className="activity-meta">
+                        📍 {act.location || (destinations.find(d => d.id === act.destination_id)?.name) || 'Unassigned'}
+                      </div>
                     )}
                     
                     {act.description && <p className="activity-desc mt-2">{act.description}</p>}

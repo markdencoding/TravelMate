@@ -21,12 +21,19 @@ export default function DayForm({ initialData = null, onSubmit, onCancel, existi
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      day_number: parseInt(formData.day_number, 10)
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...formData,
+        day_number: parseInt(formData.day_number, 10)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -59,11 +66,11 @@ export default function DayForm({ initialData = null, onSubmit, onCancel, existi
         </div>
         
         <div className="form-actions mt-4">
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
-            {initialData ? 'Save Day' : 'Add Day'}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : (initialData ? 'Save Day' : 'Add Day')}
           </button>
         </div>
       </form>

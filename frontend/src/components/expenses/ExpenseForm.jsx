@@ -37,12 +37,19 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      amount: parseFloat(formData.amount)
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...formData,
+        amount: parseFloat(formData.amount)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -133,11 +140,11 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
         </div>
 
         <div className="form-actions mt-4">
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
-            {initialData ? 'Save Expense' : 'Add Expense'}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : (initialData ? 'Save Expense' : 'Add Expense')}
           </button>
         </div>
       </form>

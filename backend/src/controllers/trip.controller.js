@@ -50,6 +50,24 @@ exports.getTrip = async (req, res, next) => {
 exports.createTrip = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const { name, description, start_date, end_date, estimated_budget } = req.body;
+    
+    if (!name || name.trim().length === 0) {
+      return error(res, 'Trip name is required', null, 400);
+    }
+    if (name.length > 200) {
+      return error(res, 'Trip name must not exceed 200 characters', null, 400);
+    }
+    if (description && description.length > 2000) {
+      return error(res, 'Description must not exceed 2000 characters', null, 400);
+    }
+    if (estimated_budget !== undefined && estimated_budget < 0) {
+      return error(res, 'Budget cannot be negative', null, 400);
+    }
+    if (start_date && end_date && new Date(start_date) > new Date(end_date)) {
+      return error(res, 'Start date cannot be after end date', null, 400);
+    }
+
     const trip = await tripService.createTrip(userId, req.body);
     return success(res, 'Trip created successfully', trip, 201);
   } catch (error) {
@@ -64,6 +82,26 @@ exports.updateTrip = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
+    const { name, description, start_date, end_date, estimated_budget } = req.body;
+
+    if (name !== undefined) {
+      if (name.trim().length === 0) {
+        return error(res, 'Trip name is required', null, 400);
+      }
+      if (name.length > 200) {
+        return error(res, 'Trip name must not exceed 200 characters', null, 400);
+      }
+    }
+    if (description && description.length > 2000) {
+      return error(res, 'Description must not exceed 2000 characters', null, 400);
+    }
+    if (estimated_budget !== undefined && estimated_budget < 0) {
+      return error(res, 'Budget cannot be negative', null, 400);
+    }
+    if (start_date && end_date && new Date(start_date) > new Date(end_date)) {
+      return error(res, 'Start date cannot be after end date', null, 400);
+    }
+
     const trip = await tripService.updateTrip(id, userId, req.body);
     return success(res, 'Trip updated successfully', trip);
   } catch (error) {

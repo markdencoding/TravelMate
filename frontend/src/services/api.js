@@ -31,12 +31,14 @@ api.interceptors.response.use(
   (error) => {
     // If 401 and we have a stored token, it's expired/invalid
     if (error.response?.status === 401) {
-      const token = localStorage.getItem('travelmate_token');
-      if (token) {
-        localStorage.removeItem('travelmate_token');
-        localStorage.removeItem('travelmate_user');
-        // Redirect to login
-        window.location.href = '/login';
+      // Prevent redirect loops and avoid redirecting on the login page itself
+      if (window.location.pathname !== '/login') {
+        const token = localStorage.getItem('travelmate_token');
+        if (token) {
+          localStorage.removeItem('travelmate_token');
+          localStorage.removeItem('travelmate_user');
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

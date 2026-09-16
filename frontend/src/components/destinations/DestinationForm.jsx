@@ -96,9 +96,16 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
     setFormData(prev => ({ ...prev, name: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -196,11 +203,11 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
-            {initialData ? 'Save Changes' : 'Add Destination'}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : (initialData ? 'Save Changes' : 'Add Destination')}
           </button>
         </div>
       </form>

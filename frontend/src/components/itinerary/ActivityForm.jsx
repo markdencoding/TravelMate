@@ -47,12 +47,19 @@ export default function ActivityForm({ initialData = null, destinations = [], on
     setFormData(prev => ({ ...prev, destination_id: val }));
   };
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      estimated_cost: formData.estimated_cost ? parseFloat(formData.estimated_cost) : null
-    });
+    setIsSubmitting(true);
+    try {
+      await onSubmit({
+        ...formData,
+        estimated_cost: formData.estimated_cost ? parseFloat(formData.estimated_cost) : null
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -152,11 +159,11 @@ export default function ActivityForm({ initialData = null, destinations = [], on
         </div>
 
         <div className="form-actions mt-4">
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
-            {initialData ? 'Save Activity' : 'Add Activity'}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : (initialData ? 'Save Activity' : 'Add Activity')}
           </button>
         </div>
       </form>
