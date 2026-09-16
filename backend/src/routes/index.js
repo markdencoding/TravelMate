@@ -5,11 +5,15 @@ const healthRoutes = require('./health.routes');
 const authRoutes = require('./auth.routes');
 const tripRoutes = require('./trip.routes');
 const mapsRoutes = require('./maps.routes');
+const dashboardRoutes = require('./dashboard.routes');
+const weatherRoutes = require('./weather.routes');
 
 // Mount route modules
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/trips', tripRoutes);
 router.use('/maps', mapsRoutes);
+router.use('/dashboard', dashboardRoutes);
+router.use('/weather', weatherRoutes);
 
 module.exports = router;
