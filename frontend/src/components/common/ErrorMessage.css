@@ -6,17 +6,21 @@
   text-align: center;
   gap: var(--space-sm);
   padding: var(--space-xl) var(--space-lg);
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: var(--radius-lg);
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-xl);
+  margin: var(--space-md) 0;
 }
 
 .error-message__icon {
   font-size: 2rem;
+  margin-bottom: var(--space-xs);
 }
 
 .error-message__text {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   color: var(--color-error);
-  max-width: 400px;
+  max-width: 440px;
+  line-height: 1.5;
+  font-weight: 500;
 }
