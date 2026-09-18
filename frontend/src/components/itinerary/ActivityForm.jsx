@@ -68,8 +68,9 @@ export default function ActivityForm({ initialData = null, destinations = [], on
       <form onSubmit={handleSubmit}>
         
         <div className="form-group">
-          <label className="form-label">Activity Name *</label>
+          <label htmlFor="activity_name" className="form-label">Activity Name *</label>
           <input
+            id="activity_name"
             type="text"
             className="form-input"
             name="name"
@@ -77,39 +78,46 @@ export default function ActivityForm({ initialData = null, destinations = [], on
             onChange={handleChange}
             placeholder="e.g., Visit the Louvre"
             required
+            disabled={isSubmitting}
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Start Time</label>
+            <label htmlFor="start_time" className="form-label">Start Time</label>
             <input
+              id="start_time"
               type="time"
               className="form-input"
               name="start_time"
               value={formData.start_time}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
-            <label className="form-label">End Time</label>
+            <label htmlFor="end_time" className="form-label">End Time</label>
             <input
+              id="end_time"
               type="time"
               className="form-input"
               name="end_time"
               value={formData.end_time}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label className="form-label">Link to Destination (Optional)</label>
+          <label htmlFor="destination_id" className="form-label">Link to Destination (Optional)</label>
           <select 
+            id="destination_id"
             className="form-input" 
             name="destination_id" 
             value={formData.destination_id} 
             onChange={handleDestinationSelect}
+            disabled={isSubmitting}
           >
             <option value="">-- None --</option>
             {destinations.map(d => (
@@ -120,21 +128,24 @@ export default function ActivityForm({ initialData = null, destinations = [], on
         </div>
 
         <div className="form-group">
-          <label className="form-label">Location Details</label>
+          <label htmlFor="location" className="form-label">Location Details</label>
           <input
+            id="location"
             type="text"
             className="form-input"
             name="location"
             value={formData.location}
             onChange={handleChange}
             placeholder="Specific address or meeting point"
+            disabled={isSubmitting}
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Estimated Cost ($)</label>
+            <label htmlFor="estimated_cost" className="form-label">Estimated Cost ($)</label>
             <input
+              id="estimated_cost"
               type="number"
               className="form-input"
               name="estimated_cost"
@@ -142,19 +153,22 @@ export default function ActivityForm({ initialData = null, destinations = [], on
               onChange={handleChange}
               min="0"
               step="0.01"
+              disabled={isSubmitting}
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label className="form-label">Notes / Description</label>
+          <label htmlFor="description" className="form-label">Notes / Description</label>
           <textarea
+            id="description"
             className="form-input"
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows="2"
             placeholder="Important details, ticket info, etc."
+            disabled={isSubmitting}
           />
         </div>
 

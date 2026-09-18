@@ -116,8 +116,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
       
       <form onSubmit={handleSubmit}>
         <div className="form-group" ref={dropdownRef}>
-          <label className="form-label">Search Location or Enter Name *</label>
+          <label htmlFor="search_location" className="form-label">Search Location or Enter Name *</label>
           <input
+            id="search_location"
             type="text"
             className="form-input"
             value={searchQuery}
@@ -152,8 +153,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
         </div>
 
         <div className="form-group">
-          <label className="form-label">Address</label>
+          <label htmlFor="address" className="form-label">Address</label>
           <input
+            id="address"
             type="text"
             className="form-input"
             name="address"
@@ -165,8 +167,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
         
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Latitude</label>
+            <label htmlFor="latitude" className="form-label">Latitude</label>
             <input
+              id="latitude"
               type="number"
               className="form-input"
               name="latitude"
@@ -177,8 +180,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Longitude</label>
+            <label htmlFor="longitude" className="form-label">Longitude</label>
             <input
+              id="longitude"
               type="number"
               className="form-input"
               name="longitude"
@@ -191,8 +195,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
         </div>
 
         <div className="form-group">
-          <label className="form-label">Notes / Description</label>
+          <label htmlFor="description" className="form-label">Notes / Description</label>
           <textarea
+            id="description"
             className="form-input"
             name="description"
             value={formData.description}

@@ -42,25 +42,30 @@ export default function DayForm({ initialData = null, onSubmit, onCancel, existi
       <form onSubmit={handleSubmit}>
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Day Number *</label>
+            <label htmlFor="day_number" className="form-label">Day Number *</label>
             <input
+              id="day_number"
               type="number"
+              min="1"
               className="form-input"
               name="day_number"
               value={formData.day_number}
               onChange={handleChange}
-              min="1"
               required
+              disabled={isSubmitting}
             />
           </div>
+
           <div className="form-group">
-            <label className="form-label">Date (optional)</label>
+            <label htmlFor="date" className="form-label">Date (optional)</label>
             <input
+              id="date"
               type="date"
               className="form-input"
               name="date"
               value={formData.date}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
         </div>

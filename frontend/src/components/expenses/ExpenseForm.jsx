@@ -58,22 +58,25 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
       <form onSubmit={handleSubmit}>
         
         <div className="form-group">
-          <label className="form-label">Expense Name *</label>
+          <label htmlFor="expense_name" className="form-label">Expense Name *</label>
           <input
+            id="expense_name"
             type="text"
             className="form-input"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="e.g., Flight to Paris"
+            placeholder="e.g., Dinner at local restaurant"
             required
+            disabled={isSubmitting}
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Amount ($) *</label>
+            <label htmlFor="amount" className="form-label">Amount ($) *</label>
             <input
+              id="amount"
               type="number"
               className="form-input"
               name="amount"
@@ -82,16 +85,19 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
               min="0"
               step="0.01"
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Category *</label>
+            <label htmlFor="category" className="form-label">Category *</label>
             <select
+              id="category"
               className="form-input"
               name="category"
               value={formData.category}
               onChange={handleChange}
               required
+              disabled={isSubmitting}
             >
               {CATEGORIES.map(c => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -102,22 +108,26 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
 
         <div className="form-row">
           <div className="form-group">
-            <label className="form-label">Date</label>
+            <label htmlFor="expense_date" className="form-label">Date</label>
             <input
+              id="expense_date"
               type="date"
               className="form-input"
               name="expense_date"
               value={formData.expense_date}
               onChange={handleChange}
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Link to Activity</label>
+            <label htmlFor="activity_id" className="form-label">Link to Activity</label>
             <select
-              className="form-input"
+              id="activity_id"
+              className="form-select"
               name="activity_id"
               value={formData.activity_id}
               onChange={handleChange}
+              disabled={isSubmitting}
             >
               <option value="">-- No Activity --</option>
               {activities.map(act => (
@@ -128,15 +138,16 @@ export default function ExpenseForm({ initialData = null, activities = [], onSub
         </div>
 
         <div className="form-group">
-          <label className="form-label">Notes</label>
+          <label htmlFor="description" className="form-label">Notes</label>
           <textarea
-            className="form-input"
+            id="description"
+            className="form-textarea"
             name="description"
             value={formData.description}
             onChange={handleChange}
             rows="2"
-            placeholder="Optional details"
-          />
+            disabled={isSubmitting}
+          ></textarea>
         </div>
 
         <div className="form-actions mt-4">
