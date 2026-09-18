@@ -188,7 +188,7 @@ export default function TripFormPage() {
             <textarea
               id="description"
               name="description"
-              className="form-input"
+              className="form-textarea"
               value={formData.description}
               onChange={handleChange}
               rows="4"
