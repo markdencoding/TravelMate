@@ -34,3 +34,22 @@
   height: 44px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
+
+.weather-location {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-loading-icon {
+  font-size: 24px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+}

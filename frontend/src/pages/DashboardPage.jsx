@@ -202,12 +202,22 @@ export default function DashboardPage() {
               <WeatherWidget 
                 latitude={spotlightTrip.destination.latitude} 
                 longitude={spotlightTrip.destination.longitude} 
+                locationName={spotlightTrip.destination.name || spotlightTrip.primary_destination}
               />
             ) : spotlightTrip ? (
               <div className="weather-widget error">
-                <p className="text-muted text-sm text-center">
-                  Weather unavailable.<br/>Add a destination map location to view weather.
-                </p>
+                <div className="text-center p-2">
+                  <span className="text-xl">☁️</span>
+                  <h4 className="font-bold text-sm mt-1">Current Weather</h4>
+                  {spotlightTrip.primary_destination && (
+                    <span className="weather-location text-xs text-muted block mt-0.5">
+                      📍 {spotlightTrip.primary_destination}
+                    </span>
+                  )}
+                  <p className="text-muted text-xs mt-2">
+                    Weather unavailable for this trip.<br/>Add a destination map location to view live weather.
+                  </p>
+                </div>
               </div>
             ) : null}
 

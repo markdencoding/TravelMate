@@ -18,3 +18,25 @@ exports.search = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.reverse = async (req, res, next) => {
+  try {
+    const { lat, lon } = req.query;
+
+    if (lat === undefined || lon === undefined || lat === '' || lon === '') {
+      return error(res, 'Latitude and Longitude are required', null, 400);
+    }
+
+    const parsedLat = parseFloat(lat);
+    const parsedLon = parseFloat(lon);
+
+    if (isNaN(parsedLat) || isNaN(parsedLon) || parsedLat < -90 || parsedLat > 90 || parsedLon < -180 || parsedLon > 180) {
+      return error(res, 'Invalid coordinates', null, 400);
+    }
+
+    const result = await mapsService.reverseGeocode(parsedLat, parsedLon);
+    return success(res, 'Location reverse geocoded', result);
+  } catch (err) {
+    next(err);
+  }
+};

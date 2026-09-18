@@ -8,8 +8,19 @@ const mapsService = {
   async search(query) {
     if (!query) return { success: true, data: [] };
     
-    // We pass errors back up. A 503 means the API key isn't set on the backend.
     const response = await api.get(`/maps/search?q=${encodeURIComponent(query)}`);
+    return response.data;
+  },
+
+  /**
+   * Reverse geocode coordinates to location name and address
+   * @param {number} lat Latitude
+   * @param {number} lon Longitude
+   */
+  async reverse(lat, lon) {
+    const response = await api.get('/maps/reverse', {
+      params: { lat, lon }
+    });
     return response.data;
   }
 };
