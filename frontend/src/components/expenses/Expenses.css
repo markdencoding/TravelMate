@@ -1,54 +1,79 @@
-/* Expenses Layout */
+/* ============================================================
+   Expenses Module Styles — TravelMate Design System
+   ============================================================ */
+
 .expense-section {
-  margin-top: 2rem;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
+  margin-top: var(--space-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
   box-shadow: var(--shadow-sm);
 }
 
+.expense-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
 .expense-header h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: var(--text);
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0;
 }
 
 .expense-overview-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .progress-bar-container {
   width: 100%;
   height: 8px;
-  background-color: var(--border);
-  border-radius: 4px;
+  background-color: var(--color-surface-hover);
+  border-radius: var(--radius-full);
   overflow: hidden;
+  margin-top: 6px;
 }
 
 .progress-bar-fill {
   height: 100%;
-  transition: width 0.3s ease;
+  border-radius: var(--radius-full);
+  transition: width 0.35s ease;
 }
 
 .expense-categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-md);
 }
 
 .expense-item {
-  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .expense-item:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-light);
 }
 
 .expense-form {
-  border-left: 3px solid var(--primary);
-  background-color: var(--background);
+  border-left: 3px solid var(--color-primary);
+  background-color: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  margin-top: var(--space-md);
 }

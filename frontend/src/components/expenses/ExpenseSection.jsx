@@ -125,12 +125,12 @@ export default function ExpenseSection({ tripId }) {
             <div key={exp.id} className="expense-item card p-4 flex justify-between items-center">
               <div className="expense-details">
                 <div className="font-bold text-lg">{exp.name}</div>
-                <div className="text-sm text-muted flex gap-3 mt-1">
-                  <span className="capitalize badge bg-gray-100 text-gray-700">{exp.category}</span>
+                <div className="text-sm text-muted flex gap-3 mt-1 items-center">
+                  <span className="capitalize badge badge-neutral">{exp.category}</span>
                   {exp.expense_date && <span>📅 {formatDate(exp.expense_date)}</span>}
-                  {exp.activity_id && <span className="text-primary">🎟️ Linked to Activity</span>}
+                  {exp.activity_id && <span className="text-primary font-medium">🎟️ Linked to Activity</span>}
                 </div>
-                {exp.description && <div className="text-sm mt-2 text-gray-600">{exp.description}</div>}
+                {exp.description && <div className="text-sm mt-2 text-muted">{exp.description}</div>}
               </div>
               <div className="expense-amount-actions text-right">
                 <div className="font-bold text-xl">${Number(exp.amount).toFixed(2)}</div>
