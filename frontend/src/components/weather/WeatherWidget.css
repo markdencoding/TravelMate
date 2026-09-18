@@ -1,19 +1,36 @@
 .weather-widget {
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
+}
+
+.weather-widget:hover {
+  box-shadow: var(--shadow-md);
 }
 
 .weather-widget.loading,
 .weather-widget.error {
-  background-color: var(--surface);
-  border: 1px dashed var(--border);
+  background-color: var(--color-surface-secondary);
+  border: 1px dashed var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 120px;
 }
 
+.weather-widget-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
 .weather-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }

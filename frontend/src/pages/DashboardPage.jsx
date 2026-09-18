@@ -72,20 +72,12 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      <div className="page-header flex justify-between items-center">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 className="page-title">Welcome{user?.full_name ? `, ${user.full_name}` : ''}! 👋</h1>
-          <p className="page-subtitle">Here's your travel planning overview</p>
+          <h1 className="page-title">Dashboard</h1>
+          <p className="page-subtitle">Your upcoming trips and stats</p>
         </div>
-      </div>
-
-      {/* Server Status Indicator */}
-      <div className="text-xs text-muted mb-6 flex gap-3">
-        <span>API: {serverStatus?.success ? '🟢 Online' : '🔴 Offline'}</span>
-        <span>DB: {serverStatus?.data?.database === 'connected' ? '🟢 Connected' : '🔴 Error'}</span>
-      </div>
-
-      {total_trips === 0 ? (
+      </div> {total_trips === 0 ? (
         <EmptyState
           icon="🌍"
           title="No trips yet"
@@ -126,8 +118,8 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                   {/* Next Activity Box */}
-                  <div className="bg-gray-50 rounded p-4 border border-gray-100">
-                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Next Activity</h4>
+                  <div className="dashboard-inset">
+                    <h4 className="dashboard-inset__label">Next Activity</h4>
                     {spotlightTrip.next_activity ? (
                       <div>
                         <div className="font-bold text-lg">{spotlightTrip.next_activity.name}</div>
@@ -141,17 +133,17 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Budget Box */}
-                  <div className="bg-gray-50 rounded p-4 border border-gray-100">
-                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Budget</h4>
+                  <div className="dashboard-inset">
+                    <h4 className="dashboard-inset__label">Budget</h4>
                     {spotlightTrip.budget_summary ? (
                       <div>
                         <div className="flex justify-between text-sm mb-1">
                           <span>Spent: ${spotlightTrip.budget_summary.total_spent.toFixed(2)}</span>
                           <span className="font-bold">Total: ${spotlightTrip.budget_summary.total_budget.toFixed(2)}</span>
                         </div>
-                        <div className="w-full bg-gray-200 h-2 rounded overflow-hidden">
+                        <div className="dashboard-progress-track">
                           <div 
-                            className={`h-full ${spotlightTrip.budget_summary.remaining_budget < 0 ? 'bg-error' : 'bg-primary'}`}
+                            className={`dashboard-progress-bar ${spotlightTrip.budget_summary.remaining_budget < 0 ? 'bg-error' : 'bg-primary'}`}
                             style={{ 
                               width: `${spotlightTrip.budget_summary.total_budget > 0 
                                 ? Math.min(100, (spotlightTrip.budget_summary.total_spent / spotlightTrip.budget_summary.total_budget) * 100) 
@@ -179,9 +171,9 @@ export default function DashboardPage() {
               </div>
               
               {upcoming_trips && upcoming_trips.length > 0 ? (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-2">
                   {upcoming_trips.map(trip => (
-                    <div key={trip.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded border border-transparent hover:border-gray-100 transition-all">
+                    <div key={trip.id} className="dashboard-trip-row">
                       <div>
                         <Link to={`/trips/${trip.id}`} className="font-bold hover:text-primary">
                           {trip.name}

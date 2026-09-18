@@ -1,3 +1,7 @@
+.dashboard {
+  animation: fadeIn 200ms ease;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -16,4 +20,68 @@
 
 .dashboard-sidebar {
   min-width: 0;
+}
+
+/* Spotlight Card */
+.spotlight-card {
+  position: relative;
+  border-left: 4px solid var(--color-primary) !important;
+}
+
+.spotlight-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-xs);
+}
+
+.dashboard-inset {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.dashboard-inset__label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.dashboard-progress-track {
+  width: 100%;
+  background-color: var(--color-surface-hover);
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 6px 0;
+}
+
+.dashboard-progress-bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.35s ease;
+}
+
+.dashboard-trip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.dashboard-trip-row:hover {
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
