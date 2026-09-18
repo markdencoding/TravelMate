@@ -104,9 +104,9 @@ export default function TripReportPage() {
             </div>
           </div>
           
-          <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+          <div className="report-progress-track">
             <div 
-              className={`h-4 rounded-full ${overBudget ? 'bg-error' : 'bg-primary'}`} 
+              className={`report-progress-fill ${overBudget ? 'bg-error' : 'bg-primary'}`} 
               style={{ width: `${visualUtilization}%` }}
             ></div>
           </div>
@@ -137,20 +137,20 @@ export default function TripReportPage() {
         <div className="card p-6">
           <h2 className="text-xl font-bold mb-4 border-b pb-2">Itinerary Statistics</h2>
           <div className="grid grid-cols-2 gap-4">
-            <div className="stat-box bg-gray-50 p-4 rounded text-center">
+            <div className="report-stat-box">
               <span className="text-3xl font-bold text-primary">{itinerary.totalDays}</span>
               <p className="text-sm text-muted uppercase tracking-wide">Days Planned</p>
             </div>
-            <div className="stat-box bg-gray-50 p-4 rounded text-center">
+            <div className="report-stat-box">
               <span className="text-3xl font-bold text-secondary">{itinerary.totalActivities}</span>
               <p className="text-sm text-muted uppercase tracking-wide">Total Activities</p>
             </div>
-            <div className="stat-box bg-gray-50 p-4 rounded text-center">
-              <span className="text-2xl font-bold text-gray-700">{itinerary.activitiesWithLocations}</span>
+            <div className="report-stat-box">
+              <span className="text-2xl font-bold text-text">{itinerary.activitiesWithLocations}</span>
               <p className="text-xs text-muted uppercase tracking-wide">With Locations</p>
             </div>
-            <div className="stat-box bg-gray-50 p-4 rounded text-center">
-              <span className="text-2xl font-bold text-gray-700">{itinerary.activitiesWithCosts}</span>
+            <div className="report-stat-box">
+              <span className="text-2xl font-bold text-text">{itinerary.activitiesWithCosts}</span>
               <p className="text-xs text-muted uppercase tracking-wide">With Est. Costs</p>
             </div>
           </div>
@@ -169,14 +169,14 @@ export default function TripReportPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {destinations.map(dest => (
-                <div key={dest.id} className="border border-gray-100 p-4 rounded-md shadow-sm">
+                <div key={dest.id} className="report-dest-card">
                   <h3 className="font-bold text-lg">{dest.name}</h3>
-                  {dest.address && <p className="text-sm text-gray-600 mt-1">📍 {dest.address}</p>}
+                  {dest.address && <p className="text-sm text-muted mt-1">📍 {dest.address}</p>}
                   <div className="mt-3 text-xs font-semibold">
                     {dest.has_activities ? (
-                      <span className="text-success bg-green-50 px-2 py-1 rounded">Linked to Itinerary</span>
+                      <span className="badge badge-success">Linked to Itinerary</span>
                     ) : (
-                      <span className="text-warning bg-yellow-50 px-2 py-1 rounded">No Activities Yet</span>
+                      <span className="badge badge-warning">No Activities Yet</span>
                     )}
                   </div>
                 </div>

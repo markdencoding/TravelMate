@@ -102,25 +102,25 @@ export default function NotificationsPage() {
           {notifications.map((notification) => (
             <div 
               key={notification.id} 
-              className={`notification-card card flex gap-4 p-4 ${!notification.is_read ? 'unread border-primary' : 'border-gray-200 opacity-80'}`}
+              className={`notification-card ${!notification.is_read ? 'unread' : ''}`}
             >
-              <div className="notification-icon text-3xl shrink-0 mt-1">
+              <div className="notification-icon-wrap" aria-hidden="true">
                 {getIcon(notification.type)}
               </div>
-              <div className="notification-content flex-grow">
+              <div className="notification-content">
                 <div className="flex justify-between items-start gap-4">
-                  <h3 className={`font-bold ${!notification.is_read ? 'text-primary text-lg' : 'text-gray-700'}`}>
+                  <h3 className="notification-title">
                     {notification.title}
                   </h3>
-                  <span className="text-xs text-muted whitespace-nowrap">
+                  <span className="notification-time">
                     {formatDate(notification.created_at)}
                   </span>
                 </div>
-                <p className="text-gray-600 mt-1">{notification.message}</p>
+                <p className="notification-message">{notification.message}</p>
                 
                 {!notification.is_read && (
                   <button 
-                    className="text-sm font-bold text-primary hover:underline mt-3 inline-block"
+                    className="notification-action-btn"
                     onClick={() => handleMarkAsRead(notification.id)}
                   >
                     Mark as Read

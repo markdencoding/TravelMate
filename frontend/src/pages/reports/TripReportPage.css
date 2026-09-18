@@ -1,7 +1,42 @@
+.trip-report-page {
+  animation: fadeIn 200ms ease;
+}
+
+.report-stat-box {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.report-dest-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.report-progress-track {
+  width: 100%;
+  background-color: var(--color-surface-hover);
+  border-radius: var(--radius-full);
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: var(--space-xs);
+}
+
+.report-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.35s ease;
+}
+
 @media print {
   body {
-    background-color: white;
-    color: black;
+    background-color: white !important;
+    color: black !important;
   }
   
   .print-hide, 
@@ -22,7 +57,14 @@
   
   .card {
     box-shadow: none !important;
-    border: 1px solid #ddd;
+    border: 1px solid #ddd !important;
     break-inside: avoid;
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  .report-stat-box {
+    background-color: #f9f9f9 !important;
+    border: 1px solid #ddd !important;
   }
 }
