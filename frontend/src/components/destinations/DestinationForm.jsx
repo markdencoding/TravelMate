@@ -64,6 +64,8 @@ function FormMapClickHandler({ onMapClick }) {
 export default function DestinationForm({ onSubmit, onCancel, initialData = null, error = null }) {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
+    city: initialData?.city || '',
+    country: initialData?.country || '',
     address: initialData?.address || '',
     latitude: initialData?.latitude ? parseFloat(initialData.latitude) : '',
     longitude: initialData?.longitude ? parseFloat(initialData.longitude) : '',
@@ -146,6 +148,8 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
     setFormData(prev => ({
       ...prev,
       name: result.name,
+      city: result.city || '',
+      country: result.country || '',
       address: result.address || '',
       latitude: lat,
       longitude: lon,
@@ -172,7 +176,7 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
     setValidationError(null);
     setMapCenter([lat, lon]);
 
-    // Reverse geocode to get name and formatted address
+    // Reverse geocode to get name and formatted address in English
     setIsReverseGeocoding(true);
     try {
       const res = await mapsService.reverse(lat, lon);
@@ -182,6 +186,8 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
           name: prev.name && prev.name !== 'Selected Location' && !prev.name.startsWith('Location (')
             ? prev.name
             : res.data.name,
+          city: res.data.city || prev.city || '',
+          country: res.data.country || prev.country || '',
           address: res.data.address,
           currency: res.data.currency || prev.currency || ''
         }));
@@ -340,75 +346,109 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
           )}
         </div>
 
-        {/* Selected Location Card */}
+        {/* Selected Destination Details Panel (English + Map) */}
         {hasCoordinates ? (
-          <div className="destination-selected-card card p-4 bg-primary-light border-primary">
-            <div className="flex justify-between items-start">
+          <div className="destination-selected-panel card border-primary p-4 bg-surface">
+            <div className="destination-selected-panel__header flex justify-between items-start mb-3">
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                    📍 Selected Location
+                <div className="flex items-center gap-2">
+                  <span className="badge bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+                    📍 Destination
                   </span>
-                  {isReverseGeocoding && (
-                    <span className="text-xs text-muted italic">Resolving address...</span>
+                  {formData.country && (
+                    <span className="badge bg-surface-secondary text-main text-xs border border-border font-semibold">
+                      {formData.country}
+                    </span>
+                  )}
+                  {formData.city && formData.city !== formData.name && (
+                    <span className="badge bg-surface-secondary text-muted text-xs border border-border">
+                      {formData.city}
+                    </span>
                   )}
                 </div>
-                <h4 className="font-bold text-base mt-1 text-primary">
-                  {formData.name || 'Selected Place'}
+                <h4 className="font-extrabold text-xl mt-1.5 text-main">
+                  {formData.name || 'Selected Destination'}
                 </h4>
                 {formData.address && (
                   <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                    {formData.address}
+                    📍 {formData.address}
                   </p>
                 )}
               </div>
-              <span className="badge bg-success text-white text-xs whitespace-nowrap">
-                ✓ Ready
+              <span className="badge bg-success text-white text-xs font-bold whitespace-nowrap">
+                ✓ Location Ready
               </span>
             </div>
-            <div className="text-xs text-muted mt-2 pt-2 border-t flex justify-between items-center">
-              <span>
-                Coordinates: {Number(formData.latitude).toFixed(4)}°, {Number(formData.longitude).toFixed(4)}°
-              </span>
-              <span className="text-primary italic">Click map to change</span>
-            </div>
-          </div>
-        ) : (
-          <div className="destination-unselected-card p-4 border border-dashed rounded-xl text-center text-muted text-sm bg-surface-secondary">
-            🗺️ Search for a destination above or click anywhere on the map to drop a pin.
-          </div>
-        )}
 
-        {/* Interactive Leaflet Map Picker */}
-        <div className="form-group">
-          <label className="form-label font-semibold flex justify-between items-center">
-            <span>Map Location</span>
-            <span className="text-xs text-muted font-normal">Click map to place pin</span>
-          </label>
-          <div className="destination-form-map-wrapper">
-            <MapContainer
-              center={mapCenter}
-              zoom={mapZoom}
-              scrollWheelZoom={true}
-              style={{ height: '280px', width: '100%', borderRadius: 'var(--radius-lg)' }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {hasCoordinates && (
+            {/* Interactive Leaflet Map Centered on Selected Destination */}
+            <div className="destination-form-map-wrapper rounded-lg overflow-hidden border border-border mb-3">
+              <MapContainer
+                center={mapCenter}
+                zoom={mapZoom}
+                scrollWheelZoom={true}
+                style={{ height: '260px', width: '100%' }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
                 <Marker position={[formData.latitude, formData.longitude]}>
                   <Popup>
-                    <strong>{formData.name || 'Selected Location'}</strong>
+                    <strong>{formData.name || 'Selected Destination'}</strong>
                     {formData.address && <div className="text-xs mt-1">{formData.address}</div>}
                   </Popup>
                 </Marker>
-              )}
-              <FormMapRecenter center={mapCenter} zoom={mapZoom} />
-              <FormMapClickHandler onMapClick={handleMapClick} />
-            </MapContainer>
+                <FormMapRecenter center={mapCenter} zoom={mapZoom} />
+                <FormMapClickHandler onMapClick={handleMapClick} />
+              </MapContainer>
+            </div>
+
+            {/* Structured Destination Information with English Labels */}
+            <div className="destination-info-grid grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-surface-secondary rounded-lg border border-border text-xs">
+              <div>
+                <span className="text-muted font-bold block uppercase tracking-wider text-[10px]">
+                  Address
+                </span>
+                <p className="font-medium text-main mt-0.5 leading-snug">
+                  {formData.address || 'Address not available'}
+                </p>
+              </div>
+              <div>
+                <span className="text-muted font-bold block uppercase tracking-wider text-[10px]">
+                  Coordinates
+                </span>
+                <p className="font-medium text-main mt-0.5 font-mono">
+                  {Number(formData.latitude).toFixed(4)}°, {Number(formData.longitude).toFixed(4)}°
+                </p>
+              </div>
+            </div>
+            <div className="text-[11px] text-muted mt-2 flex justify-between items-center">
+              <span>📍 Click anywhere on the map to reposition the pin.</span>
+              <span className="text-primary font-medium">Interactive Map</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="destination-unselected-panel">
+            <div className="p-4 border border-dashed rounded-xl text-center text-muted text-sm bg-surface-secondary mb-3">
+              🗺️ Search for a destination above or click anywhere on the map to set location coordinates.
+            </div>
+            <div className="destination-form-map-wrapper rounded-lg overflow-hidden border border-border">
+              <MapContainer
+                center={mapCenter}
+                zoom={mapZoom}
+                scrollWheelZoom={true}
+                style={{ height: '240px', width: '100%' }}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <FormMapRecenter center={mapCenter} zoom={mapZoom} />
+                <FormMapClickHandler onMapClick={handleMapClick} />
+              </MapContainer>
+            </div>
+          </div>
+        )}
 
         {/* Destination Local Currency */}
         <div className="form-group">

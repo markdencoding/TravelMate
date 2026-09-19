@@ -2,6 +2,7 @@ import { useNavigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import notificationService from '../../services/notificationService';
+import NotificationBell from './NotificationBell';
 import './AppLayout.css';
 
 /**
@@ -218,7 +219,10 @@ export default function AppLayout() {
             </div>
           </div>
           
-          <div className="app-layout__header-right">
+          <div className="app-layout__header-right flex items-center gap-3">
+            {/* Notification Bell with Dropdown */}
+            <NotificationBell unreadCount={unreadCount} onUpdateUnread={setUnreadCount} />
+
             {/* Theme Toggle Pill */}
             <button 
               type="button"

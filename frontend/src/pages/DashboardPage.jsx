@@ -94,10 +94,26 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="page-header dashboard-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">Your upcoming trips and stats</p>
+        </div>
+        <div className="dashboard-quick-actions flex items-center gap-2.5 flex-wrap">
+          <button 
+            type="button"
+            className="btn btn-primary flex items-center gap-2" 
+            onClick={() => navigate('/trips/new')}
+          >
+            <span>➕</span> Create New Trip
+          </button>
+          <button 
+            type="button"
+            className="btn btn-secondary flex items-center gap-2" 
+            onClick={() => navigate('/trips')}
+          >
+            <span>🌍</span> View All Trips
+          </button>
         </div>
       </div> {total_trips === 0 ? (
         <EmptyState
@@ -259,20 +275,6 @@ export default function DashboardPage() {
               initialAmount={spotlightTrip?.budget_summary?.remaining_budget || 5000}
               title="Currency Converter"
             />
-
-            {/* Quick Actions */}
-            <div className="card p-6">
-              <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
-              <div className="flex flex-col gap-3">
-                <button className="btn btn-primary w-full text-left justify-start" onClick={() => navigate('/trips/new')}>
-                  ➕ Create New Trip
-                </button>
-                <button className="btn btn-secondary w-full text-left justify-start" onClick={() => navigate('/trips')}>
-                  🌍 View All Trips
-                </button>
-              </div>
-            </div>
-
           </div>
         </div>
       )}

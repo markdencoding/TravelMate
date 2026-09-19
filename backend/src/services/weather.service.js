@@ -124,10 +124,45 @@ class WeatherService {
         }
       }
 
+      // Process 7-day graphical daily forecast & temperature trend
+      let dailyForecast = [];
+      if (data.daily && data.daily.time) {
+        const count = Math.min(7, data.daily.time.length);
+        for (let i = 0; i < count; i++) {
+          const dateStr = data.daily.time[i];
+          const code = data.daily.weather_code[i];
+          const wInfo = WMO_CODE_MAP[code] || { condition: 'Partly Cloudy', description: 'partly cloudy', icon: '02d' };
+          
+          let dayLabel = 'Today';
+          if (i > 0) {
+            try {
+              const d = new Date(dateStr + 'T00:00:00');
+              dayLabel = d.toLocaleDateString('en-US', { weekday: 'short' });
+            } catch {
+              dayLabel = dateStr;
+            }
+          }
+
+          dailyForecast.push({
+            date: dateStr,
+            day: dayLabel,
+            temperature_max: Math.round(data.daily.temperature_2m_max[i]),
+            temperature_min: Math.round(data.daily.temperature_2m_min[i]),
+            temperature: Math.round(data.daily.temperature_2m_max[i]),
+            condition: wInfo.condition,
+            description: wInfo.description,
+            icon: wInfo.icon,
+            precipitation_probability: data.daily.precipitation_probability_max[i] ?? 0,
+            wind_speed: data.daily.wind_speed_10m_max[i] ?? 0
+          });
+        }
+      }
+
       return {
         ...currentData,
         current: currentData,
-        forecast: forecastData
+        forecast: forecastData,
+        daily_forecast: dailyForecast
       };
     } catch (error) {
       console.error('Weather API Error:', error.message);

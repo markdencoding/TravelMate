@@ -42,7 +42,7 @@
 
 .weather-location {
   color: var(--color-text-main);
-  max-width: 160px;
+  max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -80,7 +80,7 @@
 }
 
 .weather-slide-container {
-  min-height: 90px;
+  min-height: 85px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -125,6 +125,78 @@
   border-radius: var(--radius-lg);
   border: 1px dashed var(--color-border);
   padding: var(--space-sm) var(--space-md);
+}
+
+/* Graphical Forecast Pills / Cards */
+.weather-daily-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weather-daily-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 2px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-secondary);
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.weather-daily-pill:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-surface);
+  transform: translateY(-1px);
+}
+
+.weather-daily-pill.today {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.weather-daily-pill__day {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-main);
+  text-align: center;
+}
+
+.weather-daily-pill__icon {
+  width: 24px;
+  height: 24px;
+  margin: 1px 0;
+  object-fit: contain;
+}
+
+.weather-daily-pill__temp {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.weather-daily-pill__min-temp {
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+
+.weather-daily-pill__rain {
+  font-size: 8px;
+  font-weight: 600;
+  color: #0284c7;
+  margin-top: 1px;
+}
+
+/* Graphical Temperature Trend Sparkline */
+.weather-sparkline-container {
+  width: 100%;
+}
+
+.weather-sparkline-svg {
+  width: 100%;
+  height: 48px;
+  overflow: visible;
 }
 
 .weather-controls {
@@ -194,5 +266,12 @@
   }
   .weather-location {
     max-width: 100%;
+  }
+  .weather-daily-grid {
+    overflow-x: auto;
+    display: flex;
+  }
+  .weather-daily-pill {
+    min-width: 44px;
   }
 }

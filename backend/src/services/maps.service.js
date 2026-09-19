@@ -60,9 +60,9 @@ class MapsService {
       }
     }
 
-    // 2. OpenStreetMap Nominatim: open-standard geocoding fallback
+    // 2. OpenStreetMap Nominatim: open-standard geocoding fallback (English preferred)
     try {
-      const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
+      const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&accept-language=en`;
       const response = await fetch(nominatimUrl, {
         headers: {
           'User-Agent': 'TravelMate/1.0 (travel-planner-app)'
@@ -77,9 +77,13 @@ class MapsService {
       const data = await response.json();
       return data.map(item => {
         const countryCode = item.address?.country_code || '';
+        const city = item.address?.city || item.address?.town || item.address?.municipality || item.address?.village || item.address?.state || '';
+        const country = item.address?.country || '';
         return {
           name: item.name || (item.display_name ? item.display_name.split(',')[0].trim() : 'Unknown Place'),
           address: item.display_name,
+          city: city,
+          country: country,
           longitude: parseFloat(item.lon),
           latitude: parseFloat(item.lat),
           country_code: countryCode.toUpperCase(),
@@ -123,9 +127,9 @@ class MapsService {
       }
     }
 
-    // 2. OpenStreetMap Nominatim reverse geocode fallback
+    // 2. OpenStreetMap Nominatim reverse geocode fallback (English preferred)
     try {
-      const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+      const nominatimUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&accept-language=en`;
       const response = await fetch(nominatimUrl, {
         headers: {
           'User-Agent': 'TravelMate/1.0 (travel-planner-app)'
@@ -140,9 +144,13 @@ class MapsService {
       const data = await response.json();
       const placeName = data.name || (data.display_name ? data.display_name.split(',')[0].trim() : `Location (${lat}, ${lon})`);
       const countryCode = data.address?.country_code || '';
+      const city = data.address?.city || data.address?.town || data.address?.municipality || data.address?.village || data.address?.state || '';
+      const country = data.address?.country || '';
       return {
         name: placeName,
         address: data.display_name || `${lat}, ${lon}`,
+        city: city,
+        country: country,
         latitude: parseFloat(lat),
         longitude: parseFloat(lon),
         country_code: countryCode.toUpperCase(),
@@ -153,6 +161,8 @@ class MapsService {
       return {
         name: `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`,
         address: `Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`,
+        city: '',
+        country: '',
         latitude: parseFloat(lat),
         longitude: parseFloat(lon),
         country_code: '',

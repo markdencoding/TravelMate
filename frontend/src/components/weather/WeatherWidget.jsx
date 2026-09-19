@@ -8,6 +8,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   const [error, setError] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0); // 0 = Current, 1 = Trip Date Forecast
   const [isPaused, setIsPaused] = useState(false);
+  const [showTrend, setShowTrend] = useState(true);
 
   const timerRef = useRef(null);
 
@@ -120,7 +121,67 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
 
   const current = weather.current || weather;
   const forecast = weather.forecast;
+  const dailyForecast = weather.daily_forecast || [];
   const hasTripDate = Boolean(tripDate);
+
+  // SVG Temperature Sparkline Calculations
+  const renderSparkline = () => {
+    if (!dailyForecast || dailyForecast.length < 2) return null;
+
+    const temps = dailyForecast.map(d => d.temperature_max);
+    const minT = Math.min(...temps) - 2;
+    const maxT = Math.max(...temps) + 2;
+    const range = maxT - minT || 1;
+
+    const width = 280;
+    const height = 48;
+    const padding = 16;
+    const usableWidth = width - padding * 2;
+    const usableHeight = height - 16;
+
+    const points = dailyForecast.map((d, idx) => {
+      const x = padding + (idx / (dailyForecast.length - 1)) * usableWidth;
+      const y = height - 8 - ((d.temperature_max - minT) / range) * usableHeight;
+      return { x, y, temp: d.temperature_max, day: d.day };
+    });
+
+    const pathD = points.reduce((acc, pt, i) => {
+      return i === 0 ? `M ${pt.x},${pt.y}` : `${acc} L ${pt.x},${pt.y}`;
+    }, '');
+
+    const areaD = `${pathD} L ${points[points.length - 1].x},${height} L ${points[0].x},${height} Z`;
+
+    return (
+      <div className="weather-sparkline-container mt-3 pt-2 border-t border-border">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
+            Temperature Trend (°C)
+          </span>
+          <span className="text-[10px] text-primary font-semibold">
+            High: {Math.max(...temps)}° | Low: {Math.min(...dailyForecast.map(d => d.temperature_min))}°
+          </span>
+        </div>
+        <svg viewBox={`0 0 ${width} ${height}`} className="weather-sparkline-svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="weatherTempGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path d={areaD} fill="url(#weatherTempGrad)" />
+          <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          {points.map((pt, i) => (
+            <g key={i}>
+              <circle cx={pt.x} cy={pt.y} r="3" fill="var(--color-surface)" stroke="var(--color-primary)" strokeWidth="2" />
+              <text x={pt.x} y={pt.y - 6} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--color-text-main)">
+                {pt.temp}°
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  };
 
   return (
     <div 
@@ -132,7 +193,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
       tabIndex={0}
       onKeyDown={handleKeyDown}
       role="region"
-      aria-label={`Weather slideshow for ${locationName || 'destination'}`}
+      aria-label={`Weather forecast for ${locationName || 'destination'}`}
     >
       {/* Slideshow Top Header */}
       <div className="weather-header flex justify-between items-center mb-3">
@@ -172,7 +233,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
         )}
       </div>
 
-      {/* Slide Container */}
+      {/* Slide Container: Current vs Trip Date */}
       <div className="weather-slide-container">
         {/* SLIDE 0: Current Weather */}
         {activeSlide === 0 && (
@@ -180,7 +241,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
             <div className="weather-body flex justify-between items-center">
               <div>
                 <div className="weather-temp-row flex items-baseline gap-2">
-                  <span className="weather-temp text-3xl font-extrabold text-primary">
+                  <span className="weather-temp text-3xl font-black text-primary">
                     {Math.round(current.temperature)}°C
                   </span>
                   <span className="weather-condition text-sm font-medium capitalize text-muted">
@@ -227,11 +288,11 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                 <div className="weather-body flex justify-between items-center">
                   <div>
                     <div className="weather-temp-row flex items-baseline gap-2">
-                      <span className="weather-temp text-3xl font-extrabold text-primary">
+                      <span className="weather-temp text-3xl font-black text-primary">
                         {forecast.temperature}°C
                       </span>
                       {forecast.min_temperature !== undefined && (
-                        <span className="text-xs text-muted">
+                        <span className="text-xs text-muted font-semibold">
                           / {forecast.min_temperature}°C
                         </span>
                       )}
@@ -267,13 +328,13 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
               </div>
             ) : (
               /* Fallback for trip dates beyond forecast range */
-              <div className="weather-unavailable-card p-2 text-center">
+              <div className="weather-unavailable-card p-2.5 text-center">
                 <div className="text-xl mb-1">🔭</div>
                 <h5 className="text-xs font-bold text-main">Forecast not available yet</h5>
                 <p className="text-xs text-muted mt-1 leading-relaxed">
                   Weather forecasts for this date aren&apos;t available yet. Check again closer to your trip.
                 </p>
-                <span className="text-[10px] text-muted opacity-75 mt-1 block">
+                <span className="text-[10px] text-muted opacity-75 mt-1 block font-medium">
                   Trip Date: {formatTripDate(tripDate)}
                 </span>
               </div>
@@ -281,6 +342,36 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
           </div>
         )}
       </div>
+
+      {/* GRAPHICAL FORECAST CARDS (Daily weather at a glance) */}
+      {dailyForecast.length > 0 && (
+        <div className="weather-daily-forecast-section mt-3 pt-2.5 border-t border-border">
+          <div className="weather-daily-grid flex gap-1.5 overflow-x-auto pb-1">
+            {dailyForecast.map((dayItem, idx) => (
+              <div key={idx} className={`weather-daily-pill ${idx === 0 ? 'today' : ''}`}>
+                <span className="weather-daily-pill__day">{dayItem.day}</span>
+                {dayItem.icon && (
+                  <img
+                    src={`https://openweathermap.org/img/wn/${dayItem.icon}.png`}
+                    alt={dayItem.condition}
+                    className="weather-daily-pill__icon"
+                  />
+                )}
+                <span className="weather-daily-pill__temp">{dayItem.temperature_max}°</span>
+                <span className="weather-daily-pill__min-temp">{dayItem.temperature_min}°</span>
+                {dayItem.precipitation_probability > 0 && (
+                  <span className="weather-daily-pill__rain" title={`Rain probability: ${dayItem.precipitation_probability}%`}>
+                    💧{dayItem.precipitation_probability}%
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* GRAPHICAL TEMPERATURE TREND (Lightweight SVG Sparkline) */}
+      {renderSparkline()}
 
       {/* Slideshow Footer Controls (if tripDate is provided) */}
       {hasTripDate && (
