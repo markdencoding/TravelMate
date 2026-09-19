@@ -1,0 +1,13 @@
+{
+  "name": "travelmate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TravelMate - Web-Based Travel and Itinerary Planning System",
+  "scripts": {
+    "start": "npm run dev:all",
+    "dev": "npm run dev:all",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:all": "node -e \"const { spawn } = require('child_process'); const b = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], { stdio: 'inherit', shell: true }); const f = spawn('npm', ['--prefix', 'frontend', 'run', 'dev'], { stdio: 'inherit', shell: true }); process.on('SIGINT', () => { b.kill(); f.kill(); process.exit(); });\""
+  }
+}
