@@ -36,12 +36,12 @@ class TripService {
    * Create a new trip for a user
    */
   async createTrip(userId, data) {
-    const { name, description, start_date, end_date, primary_destination, estimated_budget } = data;
+    const { name, description, start_date, end_date, primary_destination, estimated_budget, base_currency } = data;
     
     const query = `
       INSERT INTO trips (
-        user_id, name, description, start_date, end_date, primary_destination, estimated_budget
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+        user_id, name, description, start_date, end_date, primary_destination, estimated_budget, base_currency
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
     
@@ -52,7 +52,8 @@ class TripService {
       start_date || null, 
       end_date || null, 
       primary_destination || null, 
-      estimated_budget || null
+      estimated_budget || null,
+      base_currency || 'PHP'
     ];
     
     try {
@@ -76,7 +77,7 @@ class TripService {
     // First ensure it exists and belongs to the user
     await this.getTripById(tripId, userId);
 
-    const { name, description, start_date, end_date, primary_destination, estimated_budget } = data;
+    const { name, description, start_date, end_date, primary_destination, estimated_budget, base_currency } = data;
     
     const query = `
       UPDATE trips 
@@ -87,13 +88,12 @@ class TripService {
         end_date = $4,
         primary_destination = $5,
         estimated_budget = $6,
+        base_currency = COALESCE($7, base_currency),
         updated_at = NOW()
-      WHERE id = $7 AND user_id = $8
+      WHERE id = $8 AND user_id = $9
       RETURNING *
     `;
     
-    // We pass undefined values as null or use coalesce logic. But for description/dates, they might want to clear them.
-    // In our payload, we will trust the provided values. If undefined, we don't change, but it's easier to just pass the whole object.
     const values = [
       name,
       description !== undefined ? description : null,
@@ -101,6 +101,7 @@ class TripService {
       end_date !== undefined ? end_date : null,
       primary_destination !== undefined ? primary_destination : null,
       estimated_budget !== undefined ? estimated_budget : null,
+      base_currency !== undefined ? base_currency : null,
       tripId,
       userId
     ];

@@ -1,3 +1,32 @@
+const COUNTRY_TO_CURRENCY = {
+  ph: 'PHP',
+  jp: 'JPY',
+  us: 'USD',
+  gb: 'GBP',
+  uk: 'GBP',
+  fr: 'EUR', de: 'EUR', it: 'EUR', es: 'EUR', nl: 'EUR', gr: 'EUR', pt: 'EUR', at: 'EUR', ie: 'EUR', be: 'EUR', fi: 'EUR',
+  sg: 'SGD',
+  au: 'AUD',
+  ca: 'CAD',
+  kr: 'KRW',
+  th: 'THB',
+  my: 'MYR',
+  id: 'IDR',
+  vn: 'VND',
+  cn: 'CNY',
+  ch: 'CHF',
+  ae: 'AED',
+  hk: 'HKD',
+  tw: 'TWD',
+  nz: 'NZD'
+};
+
+function detectCurrency(code) {
+  if (!code) return 'PHP';
+  const clean = code.toLowerCase().trim();
+  return COUNTRY_TO_CURRENCY[clean] || 'USD';
+}
+
 class MapsService {
   /**
    * Search for places using Mapbox Geocoding API or OpenStreetMap Nominatim fallback
@@ -11,13 +40,19 @@ class MapsService {
         
         if (response.ok) {
           const data = await response.json();
-          return data.features.map(feature => ({
-            name: feature.text,
-            address: feature.place_name,
-            longitude: feature.center[0],
-            latitude: feature.center[1],
-            id: feature.id
-          }));
+          return data.features.map(feature => {
+            const countryContext = feature.context?.find(c => c.id?.startsWith('country'));
+            const countryCode = countryContext?.short_code || '';
+            return {
+              name: feature.text,
+              address: feature.place_name,
+              longitude: feature.center[0],
+              latitude: feature.center[1],
+              country_code: countryCode.toUpperCase(),
+              currency: detectCurrency(countryCode),
+              id: feature.id
+            };
+          });
         }
         console.warn(`Mapbox API returned ${response.status}, falling back to Nominatim`);
       } catch (err) {
@@ -40,13 +75,18 @@ class MapsService {
       }
 
       const data = await response.json();
-      return data.map(item => ({
-        name: item.name || (item.display_name ? item.display_name.split(',')[0].trim() : 'Unknown Place'),
-        address: item.display_name,
-        longitude: parseFloat(item.lon),
-        latitude: parseFloat(item.lat),
-        id: String(item.place_id)
-      }));
+      return data.map(item => {
+        const countryCode = item.address?.country_code || '';
+        return {
+          name: item.name || (item.display_name ? item.display_name.split(',')[0].trim() : 'Unknown Place'),
+          address: item.display_name,
+          longitude: parseFloat(item.lon),
+          latitude: parseFloat(item.lat),
+          country_code: countryCode.toUpperCase(),
+          currency: detectCurrency(countryCode),
+          id: String(item.place_id)
+        };
+      });
     } catch (error) {
       console.error('Maps Search API Error:', error.message);
       throw error;
@@ -66,11 +106,15 @@ class MapsService {
           const data = await response.json();
           if (data.features && data.features.length > 0) {
             const first = data.features[0];
+            const countryContext = first.context?.find(c => c.id?.startsWith('country'));
+            const countryCode = countryContext?.short_code || '';
             return {
               name: first.text || first.place_name.split(',')[0].trim(),
               address: first.place_name,
               latitude: parseFloat(lat),
-              longitude: parseFloat(lon)
+              longitude: parseFloat(lon),
+              country_code: countryCode.toUpperCase(),
+              currency: detectCurrency(countryCode)
             };
           }
         }
@@ -95,20 +139,24 @@ class MapsService {
 
       const data = await response.json();
       const placeName = data.name || (data.display_name ? data.display_name.split(',')[0].trim() : `Location (${lat}, ${lon})`);
+      const countryCode = data.address?.country_code || '';
       return {
         name: placeName,
         address: data.display_name || `${lat}, ${lon}`,
         latitude: parseFloat(lat),
-        longitude: parseFloat(lon)
+        longitude: parseFloat(lon),
+        country_code: countryCode.toUpperCase(),
+        currency: detectCurrency(countryCode)
       };
     } catch (error) {
       console.error('Reverse Geocode API Error:', error.message);
-      // Even if reverse lookup times out, return the coordinates safely
       return {
         name: `Location (${lat.toFixed(4)}, ${lon.toFixed(4)})`,
         address: `Coordinates: ${lat.toFixed(6)}, ${lon.toFixed(6)}`,
         latitude: parseFloat(lat),
-        longitude: parseFloat(lon)
+        longitude: parseFloat(lon),
+        country_code: '',
+        currency: 'PHP'
       };
     }
   }

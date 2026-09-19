@@ -26,10 +26,21 @@ const WMO_CODE_MAP = {
 };
 
 class WeatherService {
-  async getCurrentWeather(lat, lon) {
+  async getCurrentWeather(lat, lon, tripDate = null) {
     const apiKey = process.env.WEATHER_API_KEY;
-    
-    // 1. If OpenWeatherMap API key is configured, use it
+    let targetDateStr = null;
+
+    if (tripDate) {
+      try {
+        // Normalize date to YYYY-MM-DD
+        targetDateStr = new Date(tripDate).toISOString().split('T')[0];
+      } catch {
+        targetDateStr = null;
+      }
+    }
+
+    // 1. If OpenWeatherMap API key is configured, use it for current weather
+    let currentData = null;
     if (apiKey) {
       try {
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
@@ -37,7 +48,7 @@ class WeatherService {
         
         if (response.ok) {
           const data = await response.json();
-          return {
+          currentData = {
             temperature: Math.round(data.main.temp),
             condition: data.weather[0]?.main || 'Unknown',
             description: data.weather[0]?.description || '',
@@ -46,15 +57,14 @@ class WeatherService {
             icon: data.weather[0]?.icon || '02d'
           };
         }
-        console.warn(`OpenWeatherMap returned ${response.status}, falling back to Open-Meteo`);
       } catch (err) {
         console.warn('OpenWeatherMap request failed, falling back to Open-Meteo:', err.message);
       }
     }
 
-    // 2. Open-Meteo: Zero-key open standard meteorological API
+    // 2. Open-Meteo: Fetch current weather + 16-day forecast
     try {
-      const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
+      const openMeteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max&timezone=auto&forecast_days=16`;
       const response = await fetch(openMeteoUrl, { signal: AbortSignal.timeout(6000) });
 
       if (!response.ok) {
@@ -63,22 +73,75 @@ class WeatherService {
 
       const data = await response.json();
       const current = data.current;
-      const weatherInfo = WMO_CODE_MAP[current.weather_code] || {
+      const currentWeatherInfo = WMO_CODE_MAP[current.weather_code] || {
         condition: 'Partly Cloudy',
         description: 'partly cloudy',
         icon: '02d'
       };
 
+      if (!currentData) {
+        currentData = {
+          temperature: Math.round(current.temperature_2m),
+          condition: currentWeatherInfo.condition,
+          description: currentWeatherInfo.description,
+          humidity: current.relative_humidity_2m,
+          wind_speed: current.wind_speed_10m,
+          icon: currentWeatherInfo.icon
+        };
+      }
+
+      // Process forecast for target trip date
+      let forecastData = null;
+      if (targetDateStr && data.daily && data.daily.time) {
+        const dayIndex = data.daily.time.indexOf(targetDateStr);
+
+        if (dayIndex !== -1) {
+          const forecastCode = data.daily.weather_code[dayIndex];
+          const forecastWeather = WMO_CODE_MAP[forecastCode] || {
+            condition: 'Partly Cloudy',
+            description: 'partly cloudy',
+            icon: '02d'
+          };
+
+          forecastData = {
+            available: true,
+            date: targetDateStr,
+            temperature: Math.round(data.daily.temperature_2m_max[dayIndex]),
+            min_temperature: Math.round(data.daily.temperature_2m_min[dayIndex]),
+            condition: forecastWeather.condition,
+            description: forecastWeather.description,
+            precipitation_probability: data.daily.precipitation_probability_max[dayIndex] ?? 0,
+            wind_speed: data.daily.wind_speed_10m_max[dayIndex] ?? 0,
+            icon: forecastWeather.icon
+          };
+        } else {
+          // Date is beyond the 16-day forecast range or in the past
+          forecastData = {
+            available: false,
+            date: targetDateStr,
+            message: "Weather forecasts for this date aren't available yet. Check again closer to your trip."
+          };
+        }
+      }
+
       return {
-        temperature: Math.round(current.temperature_2m),
-        condition: weatherInfo.condition,
-        description: weatherInfo.description,
-        humidity: current.relative_humidity_2m,
-        wind_speed: current.wind_speed_10m,
-        icon: weatherInfo.icon
+        ...currentData,
+        current: currentData,
+        forecast: forecastData
       };
     } catch (error) {
       console.error('Weather API Error:', error.message);
+      if (currentData) {
+        return {
+          ...currentData,
+          current: currentData,
+          forecast: targetDateStr ? {
+            available: false,
+            date: targetDateStr,
+            message: "Weather forecasts for this date aren't available yet. Check again closer to your trip."
+          } : null
+        };
+      }
       throw new Error('WEATHER_API_FAILED');
     }
   }

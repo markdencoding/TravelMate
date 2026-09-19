@@ -1,9 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import tripService from '../../services/tripService';
+import currencyService from '../../services/currencyService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import './Trips.css';
+
+const POPULAR_CURRENCIES = [
+  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  { code: 'TWD', name: 'New Taiwan Dollar', symbol: 'NT$' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' }
+];
 
 export default function TripFormPage() {
   const { id } = useParams();
@@ -16,8 +38,12 @@ export default function TripFormPage() {
     start_date: '',
     end_date: '',
     primary_destination: '',
-    estimated_budget: ''
+    estimated_budget: '',
+    base_currency: 'PHP'
   });
+  const [destCurrency, setDestCurrency] = useState('JPY');
+  const [rateInfo, setRateInfo] = useState(null);
+  const [loadingRate, setLoadingRate] = useState(false);
   const [loading, setLoading] = useState(isEditing);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -42,8 +68,13 @@ export default function TripFormPage() {
           start_date: formatDateForInput(trip.start_date),
           end_date: formatDateForInput(trip.end_date),
           primary_destination: trip.primary_destination || '',
-          estimated_budget: trip.estimated_budget || ''
+          estimated_budget: trip.estimated_budget || '',
+          base_currency: trip.base_currency || 'PHP'
         });
+
+        if (trip.destinations && trip.destinations.length > 0 && trip.destinations[0].currency) {
+          setDestCurrency(trip.destinations[0].currency);
+        }
       } else {
         setError(result.message || 'Failed to load trip details');
       }
@@ -53,6 +84,29 @@ export default function TripFormPage() {
       setLoading(false);
     }
   };
+
+  const updateRate = useCallback(async () => {
+    if (!formData.base_currency || !destCurrency || formData.base_currency === destCurrency) {
+      setRateInfo({ rate: 1, updated_at: new Date().toISOString() });
+      return;
+    }
+    setLoadingRate(true);
+    try {
+      const res = await currencyService.getRate(formData.base_currency, destCurrency);
+      if (res.success && res.data) {
+        setRateInfo(res.data);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch exchange rate:', err);
+      setRateInfo(null);
+    } finally {
+      setLoadingRate(false);
+    }
+  }, [formData.base_currency, destCurrency]);
+
+  useEffect(() => {
+    updateRate();
+  }, [updateRate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,10 +129,9 @@ export default function TripFormPage() {
 
     setSubmitting(true);
     try {
-      // Prepare payload (convert empty strings to undefined/null for backend if needed, 
-      // but standard approach is to send what user typed)
       const payload = {
         ...formData,
+        base_currency: formData.base_currency || 'PHP',
         estimated_budget: formData.estimated_budget ? Number(formData.estimated_budget) : null
       };
 
@@ -168,20 +221,91 @@ export default function TripFormPage() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="estimated_budget" className="form-label">Estimated Budget</label>
-            <input
-              type="number"
-              id="estimated_budget"
-              name="estimated_budget"
-              className="form-input"
-              value={formData.estimated_budget}
-              onChange={handleChange}
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-            />
+          {/* Budget & Currency Fields */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="estimated_budget" className="form-label font-semibold">
+                Trip Budget
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  id="estimated_budget"
+                  name="estimated_budget"
+                  className="form-input flex-1"
+                  value={formData.estimated_budget}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  placeholder="50000.00"
+                />
+                <select
+                  name="base_currency"
+                  className="form-input w-36 font-semibold"
+                  value={formData.base_currency}
+                  onChange={handleChange}
+                  aria-label="Trip Base Currency"
+                >
+                  {POPULAR_CURRENCIES.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.code} ({c.symbol})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="dest_currency" className="form-label font-semibold">
+                Destination Currency
+              </label>
+              <select
+                id="dest_currency"
+                className="form-input font-semibold"
+                value={destCurrency}
+                onChange={(e) => setDestCurrency(e.target.value)}
+                aria-label="Destination Currency"
+              >
+                {POPULAR_CURRENCIES.map(c => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} — {c.name} ({c.symbol})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {/* Live Converted Destination Budget Preview */}
+          {formData.estimated_budget && Number(formData.estimated_budget) > 0 && formData.base_currency !== destCurrency && (
+            <div className="card p-4 bg-primary-light border-primary mb-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                    Estimated Destination Budget
+                  </span>
+                  <div className="text-2xl font-black text-primary mt-1">
+                    {loadingRate ? (
+                      <span className="text-sm text-muted">Calculating live conversion...</span>
+                    ) : rateInfo?.rate ? (
+                      currencyService.formatAmount(Number(formData.estimated_budget) * rateInfo.rate, destCurrency)
+                    ) : (
+                      <span className="text-xs text-error">Exchange rate unavailable</span>
+                    )}
+                  </div>
+                </div>
+                {rateInfo?.rate && (
+                  <div className="text-right">
+                    <span className="badge bg-surface text-main text-xs border border-border">
+                      1 {formData.base_currency} = {Number(rateInfo.rate).toFixed(4)} {destCurrency}
+                    </span>
+                    <div className="text-[10px] text-muted mt-1">
+                      Live provider rate
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="description" className="form-label">Description</label>

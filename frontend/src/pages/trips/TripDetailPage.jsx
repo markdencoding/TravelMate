@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import tripService from '../../services/tripService';
 import destinationService from '../../services/destinationService';
+import currencyService from '../../services/currencyService';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import DestinationList from '../../components/destinations/DestinationList';
@@ -9,6 +10,8 @@ import DestinationForm from '../../components/destinations/DestinationForm';
 import DestinationMap from '../../components/destinations/DestinationMap';
 import ItinerarySection from '../../components/itinerary/ItinerarySection';
 import ExpenseSection from '../../components/expenses/ExpenseSection';
+import WeatherWidget from '../../components/weather/WeatherWidget';
+import CurrencyConverter from '../../components/currency/CurrencyConverter';
 import './Trips.css';
 
 export default function TripDetailPage() {
@@ -17,6 +20,7 @@ export default function TripDetailPage() {
   
   const [trip, setTrip] = useState(null);
   const [destinations, setDestinations] = useState([]);
+  const [convertedBudget, setConvertedBudget] = useState(null);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,9 +29,30 @@ export default function TripDetailPage() {
   const [showDestForm, setShowDestForm] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
 
+  const primaryDest = destinations.length > 0 ? destinations[0] : null;
+  const baseCurrency = trip?.base_currency || 'PHP';
+  const destCurrency = primaryDest?.currency || (baseCurrency === 'PHP' ? 'JPY' : 'PHP');
+
   useEffect(() => {
     fetchTripData();
   }, [id]);
+
+  useEffect(() => {
+    if (!trip?.estimated_budget || !destCurrency || baseCurrency === destCurrency) {
+      setConvertedBudget(null);
+      return;
+    }
+    let isMounted = true;
+    currencyService.convert(trip.estimated_budget, baseCurrency, destCurrency)
+      .then(res => {
+        if (isMounted && res.success && res.data) {
+          setConvertedBudget(res.data.converted_amount);
+        }
+      })
+      .catch(err => console.warn('Budget conversion err:', err));
+
+    return () => { isMounted = false; };
+  }, [trip?.estimated_budget, baseCurrency, destCurrency]);
 
   const fetchTripData = async () => {
     setLoading(true);
@@ -167,7 +192,12 @@ export default function TripDetailPage() {
           )}
           {trip.estimated_budget != null && (
             <span className="trip-detail-meta-item">
-              💰 <strong>Budget:</strong> ${Number(trip.estimated_budget).toLocaleString()}
+              💰 <strong>Budget:</strong> {currencyService.formatAmount(trip.estimated_budget, baseCurrency)}
+              {convertedBudget && destCurrency !== baseCurrency && (
+                <span className="text-primary font-bold ml-1.5">
+                  (≈ {currencyService.formatAmount(convertedBudget, destCurrency)})
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -218,12 +248,37 @@ export default function TripDetailPage() {
       {/* Expenses Section */}
       <ExpenseSection tripId={id} />
 
-      {/* Future Modules */}
-      <div className="trip-modules-grid">
-        <div className="trip-module-placeholder">
-          <h3>🌤️ Weather</h3>
-          <p>Check the forecast.</p>
-          <span className="badge">Coming in next phase</span>
+      {/* Destination Tools: Live Weather Slideshow & Currency Converter */}
+      <div className="trip-tools-section mt-8">
+        <div className="destinations-section__header mb-4">
+          <h2>Trip Tools & Forecast</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {primaryDest && primaryDest.latitude && primaryDest.longitude ? (
+            <WeatherWidget
+              latitude={primaryDest.latitude}
+              longitude={primaryDest.longitude}
+              locationName={primaryDest.name}
+              tripDate={trip.start_date}
+            />
+          ) : (
+            <div className="weather-widget error">
+              <div className="text-center p-4">
+                <span className="text-2xl">🌦️</span>
+                <h4 className="font-bold text-sm mt-1">Destination Weather</h4>
+                <p className="text-muted text-xs mt-1">
+                  Add a destination above to view current weather and trip date forecast.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <CurrencyConverter
+            initialAmount={Number(trip.estimated_budget) || 1000}
+            initialFrom={baseCurrency}
+            initialTo={destCurrency}
+            title="Trip Currency Converter"
+          />
         </div>
       </div>
     </div>

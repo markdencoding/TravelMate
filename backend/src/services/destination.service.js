@@ -55,12 +55,12 @@ class DestinationService {
     // Enforce ownership
     await this._verifyTripOwnership(tripId, userId);
 
-    const { name, address, latitude, longitude, description } = data;
+    const { name, address, latitude, longitude, description, currency } = data;
     
     const query = `
       INSERT INTO destinations (
-        trip_id, name, address, latitude, longitude, description
-      ) VALUES ($1, $2, $3, $4, $5, $6)
+        trip_id, name, address, latitude, longitude, description, currency
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
     
@@ -70,7 +70,8 @@ class DestinationService {
       address || null, 
       latitude !== undefined ? latitude : null, 
       longitude !== undefined ? longitude : null, 
-      description || null
+      description || null,
+      currency || null
     ];
     
     const result = await pool.query(query, values);
@@ -84,7 +85,7 @@ class DestinationService {
     // First ensure it exists and belongs to the user's trip
     await this.getDestinationById(destinationId, userId);
 
-    const { name, address, latitude, longitude, description } = data;
+    const { name, address, latitude, longitude, description, currency } = data;
     
     const query = `
       UPDATE destinations 
@@ -94,8 +95,9 @@ class DestinationService {
         latitude = $3,
         longitude = $4,
         description = $5,
+        currency = COALESCE($6, currency),
         updated_at = NOW()
-      WHERE id = $6 AND trip_id = $7
+      WHERE id = $7 AND trip_id = $8
       RETURNING *
     `;
     
@@ -105,6 +107,7 @@ class DestinationService {
       latitude !== undefined ? latitude : null,
       longitude !== undefined ? longitude : null,
       description !== undefined ? description : null,
+      currency !== undefined ? currency : null,
       destinationId,
       tripId
     ];

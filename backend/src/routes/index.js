@@ -8,6 +8,7 @@ const mapsRoutes = require('./maps.routes');
 const dashboardRoutes = require('./dashboard.routes');
 const weatherRoutes = require('./weather.routes');
 const notificationRoutes = require('./notification.routes');
+const currencyRoutes = require('./currency.routes');
 
 // Mount route modules
 router.use('/health', healthRoutes);
@@ -17,5 +18,6 @@ router.use('/maps', mapsRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/weather', weatherRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/currency', currencyRoutes);
 
 module.exports = router;

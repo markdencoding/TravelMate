@@ -1,0 +1,59 @@
+.currency-converter {
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-normal);
+}
+
+.currency-converter:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.currency-converter--compact {
+  padding: var(--space-md);
+}
+
+.currency-swap-btn {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  color: var(--color-primary);
+  width: 36px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 1px;
+}
+
+.currency-swap-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.currency-swap-btn:active {
+  transform: scale(0.95);
+}
+
+.currency-converter__result {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

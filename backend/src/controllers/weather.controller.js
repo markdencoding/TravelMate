@@ -3,7 +3,7 @@ const { success, error } = require('../utils/responseHelper');
 
 exports.getCurrentWeather = async (req, res, next) => {
   try {
-    const { lat, lon } = req.query;
+    const { lat, lon, date } = req.query;
     
     // Validate coordinates
     if (lat === undefined || lon === undefined || lat === '' || lon === '') {
@@ -17,7 +17,7 @@ exports.getCurrentWeather = async (req, res, next) => {
       return error(res, 'Invalid coordinates', null, 400);
     }
 
-    const weatherData = await weatherService.getCurrentWeather(parsedLat, parsedLon);
+    const weatherData = await weatherService.getCurrentWeather(parsedLat, parsedLon, date);
     return success(res, 'Weather data retrieved successfully', weatherData);
     
   } catch (err) {

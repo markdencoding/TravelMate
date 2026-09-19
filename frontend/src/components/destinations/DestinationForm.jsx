@@ -17,6 +17,27 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+const POPULAR_CURRENCIES = [
+  { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+  { code: 'USD', name: 'US Dollar', symbol: '$' },
+  { code: 'EUR', name: 'Euro', symbol: '€' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+  { code: 'GBP', name: 'British Pound', symbol: '£' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+  { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+  { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+  { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+  { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+  { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
+  { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+  { code: 'AED', name: 'UAE Dirham', symbol: 'AED' },
+  { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+  { code: 'TWD', name: 'New Taiwan Dollar', symbol: 'NT$' },
+  { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' }
+];
+
 // Recenter helper component for Leaflet
 function FormMapRecenter({ center, zoom }) {
   const map = useMap();
@@ -46,6 +67,7 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
     address: initialData?.address || '',
     latitude: initialData?.latitude ? parseFloat(initialData.latitude) : '',
     longitude: initialData?.longitude ? parseFloat(initialData.longitude) : '',
+    currency: initialData?.currency || '',
     description: initialData?.description || ''
   });
 
@@ -126,7 +148,8 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
       name: result.name,
       address: result.address || '',
       latitude: lat,
-      longitude: lon
+      longitude: lon,
+      currency: result.currency || prev.currency || ''
     }));
 
     setSearchQuery(result.name);
@@ -159,7 +182,8 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
           name: prev.name && prev.name !== 'Selected Location' && !prev.name.startsWith('Location (')
             ? prev.name
             : res.data.name,
-          address: res.data.address
+          address: res.data.address,
+          currency: res.data.currency || prev.currency || ''
         }));
         if (!searchQuery || searchQuery.startsWith('Location (')) {
           setSearchQuery(res.data.name);
@@ -218,6 +242,7 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
         address: formData.address ? formData.address.trim() : '',
         latitude: parseFloat(formData.latitude),
         longitude: parseFloat(formData.longitude),
+        currency: formData.currency ? formData.currency.trim().toUpperCase() : null,
         description: formData.description ? formData.description.trim() : ''
       });
     } finally {
@@ -383,6 +408,35 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
               <FormMapClickHandler onMapClick={handleMapClick} />
             </MapContainer>
           </div>
+        </div>
+
+        {/* Destination Local Currency */}
+        <div className="form-group">
+          <label htmlFor="currency" className="form-label font-semibold flex justify-between items-center">
+            <span>Local Currency</span>
+            {formData.currency && (
+              <span className="badge bg-primary-light text-primary text-xs font-bold">
+                Auto-detected: {formData.currency}
+              </span>
+            )}
+          </label>
+          <select
+            id="currency"
+            name="currency"
+            className="form-input"
+            value={formData.currency || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
+          >
+            <option value="">-- Select Local Currency (Optional) --</option>
+            {POPULAR_CURRENCIES.map(c => (
+              <option key={c.code} value={c.code}>
+                {c.code} — {c.name} ({c.symbol})
+              </option>
+            ))}
+          </select>
+          <p className="text-muted text-xs mt-1">
+            Local currency at this destination used for budget estimates and conversion.
+          </p>
         </div>
 
         {/* Notes / Description */}

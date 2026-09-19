@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import dashboardService from '../services/dashboardService';
 import api from '../services/api';
+import currencyService from '../services/currencyService';
 import EmptyState from '../components/common/EmptyState';
 import WeatherWidget from '../components/weather/WeatherWidget';
+import CurrencyConverter from '../components/currency/CurrencyConverter';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -14,6 +16,7 @@ export default function DashboardPage() {
   const [serverStatus, setServerStatus] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [spotlightConvertedBudget, setSpotlightConvertedBudget] = useState(null);
 
   // Fetch server health on mount
   useEffect(() => {
@@ -61,14 +64,33 @@ export default function DashboardPage() {
     return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   };
 
-  if (loading) {
-    return <div className="p-8 text-center text-muted">Loading dashboard...</div>;
-  }
-
   const { total_trips, upcoming_trips, active_trip, next_upcoming_trip } = dashboardData || {};
 
   // The "Spotlight" trip is either the active one right now, or the next upcoming one
   const spotlightTrip = active_trip || next_upcoming_trip;
+  const spotlightBaseCurrency = spotlightTrip?.base_currency || 'PHP';
+  const spotlightDestCurrency = spotlightTrip?.destination?.currency || (spotlightBaseCurrency === 'PHP' ? 'JPY' : 'PHP');
+
+  useEffect(() => {
+    if (!spotlightTrip?.budget_summary?.total_budget || !spotlightDestCurrency || spotlightBaseCurrency === spotlightDestCurrency) {
+      setSpotlightConvertedBudget(null);
+      return;
+    }
+    let isMounted = true;
+    currencyService.convert(spotlightTrip.budget_summary.total_budget, spotlightBaseCurrency, spotlightDestCurrency)
+      .then(res => {
+        if (isMounted && res.success && res.data) {
+          setSpotlightConvertedBudget(res.data.converted_amount);
+        }
+      })
+      .catch(err => console.warn('Spotlight conversion err:', err));
+
+    return () => { isMounted = false; };
+  }, [spotlightTrip?.budget_summary?.total_budget, spotlightBaseCurrency, spotlightDestCurrency]);
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted">Loading dashboard...</div>;
+  }
 
   return (
     <div className="dashboard">
@@ -134,12 +156,19 @@ export default function DashboardPage() {
 
                   {/* Budget Box */}
                   <div className="dashboard-inset">
-                    <h4 className="dashboard-inset__label">Budget</h4>
+                    <div className="flex justify-between items-center mb-1">
+                      <h4 className="dashboard-inset__label mb-0">Budget ({spotlightBaseCurrency})</h4>
+                      {spotlightConvertedBudget && spotlightDestCurrency !== spotlightBaseCurrency && (
+                        <span className="text-[11px] font-bold text-primary">
+                          ≈ {currencyService.formatAmount(spotlightConvertedBudget, spotlightDestCurrency)}
+                        </span>
+                      )}
+                    </div>
                     {spotlightTrip.budget_summary ? (
                       <div>
                         <div className="flex justify-between text-sm mb-1">
-                          <span>Spent: ${spotlightTrip.budget_summary.total_spent.toFixed(2)}</span>
-                          <span className="font-bold">Total: ${spotlightTrip.budget_summary.total_budget.toFixed(2)}</span>
+                          <span>Spent: {currencyService.formatAmount(spotlightTrip.budget_summary.total_spent, spotlightBaseCurrency)}</span>
+                          <span className="font-bold">Total: {currencyService.formatAmount(spotlightTrip.budget_summary.total_budget, spotlightBaseCurrency)}</span>
                         </div>
                         <div className="dashboard-progress-track">
                           <div 
@@ -152,7 +181,7 @@ export default function DashboardPage() {
                           ></div>
                         </div>
                         <div className={`text-xs mt-2 font-bold ${spotlightTrip.budget_summary.remaining_budget < 0 ? 'text-error' : 'text-success'}`}>
-                          Remaining: ${spotlightTrip.budget_summary.remaining_budget.toFixed(2)}
+                          Remaining: {currencyService.formatAmount(spotlightTrip.budget_summary.remaining_budget, spotlightBaseCurrency)}
                         </div>
                       </div>
                     ) : (
@@ -197,29 +226,39 @@ export default function DashboardPage() {
           {/* Sidebar */}
           <div className="dashboard-sidebar flex flex-col gap-6">
             
-            {/* Weather Widget */}
+            {/* Weather Widget Slideshow */}
             {spotlightTrip && spotlightTrip.destination ? (
               <WeatherWidget 
                 latitude={spotlightTrip.destination.latitude} 
                 longitude={spotlightTrip.destination.longitude} 
                 locationName={spotlightTrip.destination.name || spotlightTrip.primary_destination}
+                tripDate={spotlightTrip.start_date}
               />
             ) : spotlightTrip ? (
               <div className="weather-widget error">
                 <div className="text-center p-2">
                   <span className="text-xl">☁️</span>
-                  <h4 className="font-bold text-sm mt-1">Current Weather</h4>
+                  <h4 className="font-bold text-sm mt-1">Destination Weather</h4>
                   {spotlightTrip.primary_destination && (
                     <span className="weather-location text-xs text-muted block mt-0.5">
                       📍 {spotlightTrip.primary_destination}
                     </span>
                   )}
                   <p className="text-muted text-xs mt-2">
-                    Weather unavailable for this trip.<br/>Add a destination map location to view live weather.
+                    Weather unavailable for this trip.<br/>Add a destination map location to view live weather and forecast.
                   </p>
                 </div>
               </div>
             ) : null}
+
+            {/* Quick Currency Converter */}
+            <CurrencyConverter 
+              compact 
+              initialFrom={spotlightBaseCurrency}
+              initialTo={spotlightDestCurrency}
+              initialAmount={spotlightTrip?.budget_summary?.remaining_budget || 5000}
+              title="Currency Converter"
+            />
 
             {/* Quick Actions */}
             <div className="card p-6">

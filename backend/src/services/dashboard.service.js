@@ -9,7 +9,7 @@ class DashboardService {
 
     // 2. Upcoming trips
     const upcomingTripsQuery = `
-      SELECT id, name, start_date, end_date, primary_destination 
+      SELECT id, name, start_date, end_date, primary_destination, base_currency 
       FROM trips 
       WHERE user_id = $1 AND start_date >= CURRENT_DATE
       ORDER BY start_date ASC
@@ -20,7 +20,7 @@ class DashboardService {
 
     // 3. Active trip (start_date <= current date AND end_date >= current date)
     const activeTripQuery = `
-      SELECT id, name, start_date, end_date, primary_destination, estimated_budget
+      SELECT id, name, start_date, end_date, primary_destination, estimated_budget, base_currency
       FROM trips 
       WHERE user_id = $1 
         AND start_date <= CURRENT_DATE 
@@ -38,7 +38,7 @@ class DashboardService {
       
       // We need estimated_budget for the budget calculation later
       const nextUpcomingTripFullQuery = `
-        SELECT id, name, start_date, end_date, primary_destination, estimated_budget
+        SELECT id, name, start_date, end_date, primary_destination, estimated_budget, base_currency
         FROM trips
         WHERE id = $1
       `;
@@ -66,7 +66,7 @@ class DashboardService {
   async _enrichTripData(trip) {
     // 1. Destination (Deterministic rule: first destination by created_at ASC with valid lat/lon)
     const destQuery = `
-      SELECT name, address, latitude, longitude 
+      SELECT name, address, latitude, longitude, currency 
       FROM destinations 
       WHERE trip_id = $1 AND latitude IS NOT NULL AND longitude IS NOT NULL
       ORDER BY created_at ASC 
