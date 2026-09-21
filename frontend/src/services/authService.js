@@ -42,6 +42,42 @@ const authService = {
     const response = await api.get('/auth/me');
     return response.data;
   },
+
+  /**
+   * Request a 6-digit password reset OTP email.
+   * @param {string} email
+   * @returns {Promise<object>} API response data
+   */
+  async forgotPassword(email) {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  /**
+   * Verify the 6-digit OTP code and retrieve reset authorization token.
+   * @param {string} email
+   * @param {string} otp
+   * @returns {Promise<object>} API response data with { reset_token }
+   */
+  async verifyResetOtp(email, otp) {
+    const response = await api.post('/auth/verify-reset-otp', { email, otp });
+    return response.data;
+  },
+
+  /**
+   * Reset password with the authorized reset token.
+   * @param {string} resetToken
+   * @param {string} newPassword
+   * @returns {Promise<object>} API response data
+   */
+  async resetPassword(resetToken, newPassword) {
+    const response = await api.post('/auth/reset-password', {
+      reset_token: resetToken,
+      new_password: newPassword,
+    });
+    return response.data;
+  },
 };
 
 export default authService;
+

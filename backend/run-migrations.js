@@ -26,8 +26,16 @@ async function runMigrations() {
         console.log(`Applying migration: ${file}`);
         const filePath = path.join(migrationsDir, file);
         const sql = fs.readFileSync(filePath, 'utf8');
-        await client.query(sql);
-        console.log(`Successfully applied ${file}`);
+        try {
+          await client.query(sql);
+          console.log(`Successfully applied ${file}`);
+        } catch (err) {
+          if (err.message && err.message.includes('already exists')) {
+            console.log(`Notice for ${file}: already applied (${err.message})`);
+          } else {
+            throw err;
+          }
+        }
       }
     }
     

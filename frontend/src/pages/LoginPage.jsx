@@ -127,8 +127,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Remember me option */}
-        <div className="auth-remember-wrap">
+        {/* Options row: Remember me & Forgot Password */}
+        <div className="auth-options-row">
           <label className="auth-remember-label">
             <input
               type="checkbox"
@@ -144,6 +144,10 @@ export default function LoginPage() {
             </span>
             <span className="auth-remember-text">Remember me</span>
           </label>
+
+          <Link to="/forgot-password" className="auth-forgot-link">
+            Forgot Password?
+          </Link>
         </div>
 
         <button
