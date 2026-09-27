@@ -243,7 +243,7 @@ export default function TripDetailPage() {
       </div>
 
       {/* Itinerary Section */}
-      <ItinerarySection tripId={id} destinations={destinations} />
+      <ItinerarySection tripId={id} trip={trip} destinations={destinations} />
 
       {/* Expenses Section */}
       <ExpenseSection tripId={id} />

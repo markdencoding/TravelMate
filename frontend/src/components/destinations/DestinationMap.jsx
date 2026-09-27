@@ -15,6 +15,11 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Remove Leaflet promotional prefix link while strictly preserving required OpenStreetMap attribution
+if (L.Control && L.Control.Attribution) {
+  L.Control.Attribution.prototype.options.prefix = false;
+}
+
 // Component to recenter map when destinations change
 function MapUpdater({ destinations }) {
   const map = useMap();

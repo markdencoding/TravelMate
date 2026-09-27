@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
+import { calculateDerivedDate, getTripTotalDays, formatDateLong } from '../../utils/itineraryDates';
 
-export default function ActivityForm({ initialData = null, destinations = [], onSubmit, onCancel }) {
+export default function ActivityForm({ 
+  initialData = null, 
+  currentDayId = null,
+  days = [],
+  trip = null,
+  destinations = [], 
+  onSubmit, 
+  onCancel 
+}) {
+  const [selectedDayId, setSelectedDayId] = useState(
+    initialData?.itinerary_day_id || currentDayId || (days.length > 0 ? days[0].id : '')
+  );
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -11,23 +24,41 @@ export default function ActivityForm({ initialData = null, destinations = [], on
     destination_id: ''
   });
 
+  const [validationError, setValidationError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     if (initialData) {
       setFormData({
         name: initialData.name || '',
         description: initialData.description || '',
-        start_time: initialData.start_time || '',
-        end_time: initialData.end_time || '',
+        start_time: initialData.start_time ? initialData.start_time.slice(0, 5) : '',
+        end_time: initialData.end_time ? initialData.end_time.slice(0, 5) : '',
         location: initialData.location || '',
-        estimated_cost: initialData.estimated_cost || '',
+        estimated_cost: initialData.estimated_cost != null ? String(initialData.estimated_cost) : '',
         destination_id: initialData.destination_id || ''
       });
+      if (initialData.itinerary_day_id) {
+        setSelectedDayId(initialData.itinerary_day_id);
+      }
+    } else if (currentDayId) {
+      setSelectedDayId(currentDayId);
     }
-  }, [initialData]);
+  }, [initialData, currentDayId]);
+
+  // Derive contextual date based on currently selected day
+  const currentDay = days.find(d => d.id === selectedDayId) || null;
+  const totalDays = trip ? getTripTotalDays(trip.start_date, trip.end_date) : (days.length || null);
+  
+  const scheduleDateStr = currentDay?.date || (trip?.start_date && currentDay 
+    ? calculateDerivedDate(trip.start_date, currentDay.day_number) 
+    : null);
+  const scheduleDateFormatted = formatDateLong(scheduleDateStr);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setValidationError('');
   };
 
   const handleDestinationSelect = (e) => {
@@ -38,7 +69,6 @@ export default function ActivityForm({ initialData = null, destinations = [], on
         setFormData(prev => ({ 
           ...prev, 
           destination_id: val,
-          // Auto-fill location if not manually entered
           location: prev.location ? prev.location : selectedDest.name 
         }));
         return;
@@ -47,16 +77,27 @@ export default function ActivityForm({ initialData = null, destinations = [], on
     setFormData(prev => ({ ...prev, destination_id: val }));
   };
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name.trim()) {
+      setValidationError('Activity name is required.');
+      return;
+    }
+
+    if (formData.start_time && formData.end_time && formData.start_time > formData.end_time) {
+      setValidationError('Start time cannot be after end time.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await onSubmit({
         ...formData,
+        itinerary_day_id: selectedDayId,
         estimated_cost: formData.estimated_cost ? parseFloat(formData.estimated_cost) : null
       });
+    } catch (err) {
+      setValidationError(err.message || 'Failed to save activity');
     } finally {
       setIsSubmitting(false);
     }
@@ -64,9 +105,68 @@ export default function ActivityForm({ initialData = null, destinations = [], on
 
   return (
     <div className="card itinerary-form activity-form">
-      <h4>{initialData ? 'Edit Activity' : 'Add Activity'}</h4>
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="font-bold text-lg">{initialData ? 'Edit Activity' : 'Add Activity'}</h4>
+        {currentDay && (
+          <span className="text-xs text-muted font-medium">
+            Day {currentDay.day_number} {totalDays ? `of ${totalDays}` : ''}
+          </span>
+        )}
+      </div>
+
+      {validationError && (
+        <div className="card p-3 mb-3 bg-error-light text-error text-xs font-semibold border-error">
+          ⚠️ {validationError}
+        </div>
+      )}
+
+      {/* Read-only Contextual Date Display */}
+      <div className="activity-schedule-banner p-3 rounded-lg bg-surface-secondary border border-border mb-4">
+        <span className="text-[11px] font-bold text-muted uppercase tracking-wider block">
+          Schedule Date
+        </span>
+        <div className="text-base font-extrabold text-primary mt-0.5 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <span>📅</span>
+            <span>{scheduleDateFormatted || 'Date not determined'}</span>
+          </span>
+          {currentDay && (
+            <span className="badge bg-primary-light text-primary text-xs font-bold px-2 py-0.5 rounded">
+              Day {currentDay.day_number} {totalDays ? `of ${totalDays}` : ''}
+            </span>
+          )}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit}>
-        
+        {/* Itinerary Day Selection */}
+        {days.length > 1 && (
+          <div className="form-group mb-3">
+            <label htmlFor="activity_itinerary_day" className="form-label">
+              Itinerary Day *
+            </label>
+            <select
+              id="activity_itinerary_day"
+              className="form-input"
+              value={selectedDayId}
+              onChange={(e) => setSelectedDayId(e.target.value)}
+              disabled={isSubmitting}
+            >
+              {days.map(d => {
+                const dayDate = d.date || (trip?.start_date ? calculateDerivedDate(trip.start_date, d.day_number) : null);
+                return (
+                  <option key={d.id} value={d.id}>
+                    Day {d.day_number} {dayDate ? `(${formatDateLong(dayDate)})` : ''}
+                  </option>
+                );
+              })}
+            </select>
+            <span className="text-[11px] text-muted mt-1 block">
+              Moving this activity to another day automatically updates its schedule date.
+            </span>
+          </div>
+        )}
+
         <div className="form-group">
           <label htmlFor="activity_name" className="form-label">Activity Name *</label>
           <input

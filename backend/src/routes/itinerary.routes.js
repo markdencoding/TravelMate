@@ -20,7 +20,8 @@ const activitySchema = {
     location: { type: 'string', maxLength: 300 },
     estimated_cost: { type: 'number' },
     sort_order: { type: 'number' },
-    destination_id: { type: 'string' }
+    destination_id: { type: 'string' },
+    itinerary_day_id: { type: 'string' }
   }
 };
 

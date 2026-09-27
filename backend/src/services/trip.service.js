@@ -108,7 +108,19 @@ class TripService {
 
     try {
       const result = await pool.query(query, values);
-      return result.rows[0];
+      const updatedTrip = result.rows[0];
+
+      if (start_date && updatedTrip && updatedTrip.start_date) {
+        await pool.query(
+          `UPDATE itinerary_days 
+           SET date = ($1::date + (day_number - 1) * INTERVAL '1 day')::date,
+               updated_at = NOW()
+           WHERE trip_id = $2`,
+          [updatedTrip.start_date, tripId]
+        );
+      }
+
+      return updatedTrip;
     } catch (error) {
       if (error.constraint === 'chk_trip_dates') {
         throw new AppError('End date cannot be before start date', 400);

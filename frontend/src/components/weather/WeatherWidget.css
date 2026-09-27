@@ -1,3 +1,7 @@
+/* ============================================================
+   Weather Widget & Full View Modal Styles — TravelMate Design System
+   ============================================================ */
+
 .weather-widget {
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
@@ -46,6 +50,37 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.weather-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Full View Trigger Button */
+.weather-full-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.weather-full-view-btn:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.weather-full-view-icon {
+  font-size: 14px;
+  line-height: 1;
 }
 
 .weather-tabs {
@@ -109,15 +144,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
 }
 
-.weather-icon {
+.weather-icon-img {
   width: 48px;
   height: 48px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+}
+
+.weather-fallback-symbol {
+  line-height: 1;
+  display: inline-block;
 }
 
 .weather-unavailable-card {
@@ -161,13 +201,6 @@
   font-weight: 700;
   color: var(--color-text-main);
   text-align: center;
-}
-
-.weather-daily-pill__icon {
-  width: 24px;
-  height: 24px;
-  margin: 1px 0;
-  object-fit: contain;
 }
 
 .weather-daily-pill__temp {
@@ -258,6 +291,114 @@
   50% { transform: scale(1.15); opacity: 1; }
 }
 
+/* ============================================================
+   FULL VIEW MODAL STYLES
+   ============================================================ */
+
+.weather-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  animation: modalBackdropFadeIn 0.2s ease-out;
+}
+
+@keyframes modalBackdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.weather-fullview-modal {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-2xl, 0 25px 50px -12px rgba(0, 0, 0, 0.25));
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--space-xl);
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.weather-modal-close-btn {
+  background: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.weather-modal-close-btn:hover {
+  background-color: var(--color-surface-hover);
+  color: var(--color-text-main);
+  border-color: var(--color-border-hover, var(--color-border));
+}
+
+.weather-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+
+.weather-metric-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-fullview-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-xs);
+}
+
+.weather-fullview-card {
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.weather-fullview-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .weather-fullview-modal {
+    padding: var(--space-lg);
+    max-height: 92vh;
+  }
+  .weather-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .weather-fullview-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @media (max-width: 480px) {
   .weather-header {
     flex-direction: column;
@@ -273,5 +414,15 @@
   }
   .weather-daily-pill {
     min-width: 44px;
+  }
+  .weather-fullview-modal {
+    padding: var(--space-md);
+  }
+  .weather-fullview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .weather-header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }

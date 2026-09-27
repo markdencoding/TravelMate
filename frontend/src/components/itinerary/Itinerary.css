@@ -50,12 +50,31 @@
   margin-bottom: var(--space-md);
 }
 
+.itinerary-day-title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
 .itinerary-day-title h3 {
   display: inline-block;
   margin: 0;
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--color-text);
+}
+
+.itinerary-day-date {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.activity-schedule-banner {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .itinerary-day-actions {

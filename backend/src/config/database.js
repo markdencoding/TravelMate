@@ -1,5 +1,8 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 const config = require('./index');
+
+// Parse PostgreSQL DATE (OID 1082) as string "YYYY-MM-DD" to prevent timezone shifts
+types.setTypeParser(1082, (str) => str);
 
 let pool = null;
 

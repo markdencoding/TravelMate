@@ -533,6 +533,9 @@ h4 { font-size: var(--font-size-lg); }
 .p-6 { padding: var(--space-lg); }
 .p-8 { padding: var(--space-xl); }
 
+.relative { position: relative; }
+.absolute { position: absolute; }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   :root {

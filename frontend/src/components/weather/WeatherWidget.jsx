@@ -1,6 +1,46 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import weatherService from '../../services/weatherService';
+import { formatDateLong, formatDateWithWeekday } from '../../utils/itineraryDates';
 import './WeatherWidget.css';
+
+// Reusable Weather Icon with graceful fallback
+function WeatherIcon({ icon, condition, size = 42, className = '' }) {
+  const [imgError, setImgError] = useState(false);
+  const iconUrl = icon ? `https://openweathermap.org/img/wn/${icon}@2x.png` : null;
+
+  if (iconUrl && !imgError) {
+    return (
+      <img
+        src={iconUrl}
+        alt={condition || 'Weather'}
+        width={size}
+        height={size}
+        className={`weather-icon-img ${className}`}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  const getFallbackSymbol = (cond = '') => {
+    const c = cond.toLowerCase();
+    if (c.includes('rain') || c.includes('drizzle')) return '🌧️';
+    if (c.includes('thunder')) return '⛈️';
+    if (c.includes('snow')) return '❄️';
+    if (c.includes('cloud') || c.includes('overcast')) return '☁️';
+    if (c.includes('fog') || c.includes('mist')) return '🌫️';
+    return '☀️';
+  };
+
+  return (
+    <span 
+      className={`weather-fallback-symbol ${className}`} 
+      aria-hidden="true"
+      style={{ fontSize: `${size * 0.65}px` }}
+    >
+      {getFallbackSymbol(condition)}
+    </span>
+  );
+}
 
 export default function WeatherWidget({ latitude, longitude, locationName, tripDate }) {
   const [weather, setWeather] = useState(null);
@@ -8,24 +48,39 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   const [error, setError] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0); // 0 = Current, 1 = Trip Date Forecast
   const [isPaused, setIsPaused] = useState(false);
-  const [showTrend, setShowTrend] = useState(true);
+  const [isFullViewOpen, setIsFullViewOpen] = useState(false);
 
   const timerRef = useRef(null);
+  const fullViewButtonRef = useRef(null);
 
-  // Helper: Format trip date safely
+  // Safe trip date formatting
   const formatTripDate = (dateStr) => {
     if (!dateStr) return 'Trip Date';
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch {
-      return dateStr;
-    }
+    return formatDateLong(dateStr) || dateStr;
   };
+
+  // Keyboard navigation and body scroll lock for Full View Modal
+  useEffect(() => {
+    if (!isFullViewOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsFullViewOpen(false);
+        if (fullViewButtonRef.current) {
+          fullViewButtonRef.current.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isFullViewOpen]);
 
   useEffect(() => {
     if (!latitude || !longitude) {
@@ -60,7 +115,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
     };
   }, [latitude, longitude, tripDate]);
 
-  // Slideshow auto-rotation (6 seconds interval, pauses on hover/focus)
+  // Slideshow auto-rotation
   const nextSlide = useCallback(() => {
     setActiveSlide((prev) => (prev === 0 ? 1 : 0));
   }, []);
@@ -70,7 +125,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   }, []);
 
   useEffect(() => {
-    if (loading || error || !weather || isPaused || !tripDate) {
+    if (loading || error || !weather || isPaused || !tripDate || isFullViewOpen) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -82,7 +137,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [loading, error, weather, isPaused, tripDate, nextSlide]);
+  }, [loading, error, weather, isPaused, tripDate, isFullViewOpen, nextSlide]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowLeft') {
@@ -125,7 +180,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   const hasTripDate = Boolean(tripDate);
 
   // SVG Temperature Sparkline Calculations
-  const renderSparkline = () => {
+  const renderSparkline = (customWidth = 280, customHeight = 48) => {
     if (!dailyForecast || dailyForecast.length < 2) return null;
 
     const temps = dailyForecast.map(d => d.temperature_max);
@@ -133,8 +188,8 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
     const maxT = Math.max(...temps) + 2;
     const range = maxT - minT || 1;
 
-    const width = 280;
-    const height = 48;
+    const width = customWidth;
+    const height = customHeight;
     const padding = 16;
     const usableWidth = width - padding * 2;
     const usableHeight = height - 16;
@@ -164,7 +219,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
         <svg viewBox={`0 0 ${width} ${height}`} className="weather-sparkline-svg" aria-hidden="true">
           <defs>
             <linearGradient id="weatherTempGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.28" />
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
               <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.0" />
             </linearGradient>
           </defs>
@@ -184,237 +239,440 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   };
 
   return (
-    <div 
-      className="weather-widget weather-slideshow card border-primary"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocus={() => setIsPaused(true)}
-      onBlur={() => setIsPaused(false)}
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      role="region"
-      aria-label={`Weather forecast for ${locationName || 'destination'}`}
-    >
-      {/* Slideshow Top Header */}
-      <div className="weather-header flex justify-between items-center mb-3">
-        <div className="weather-title-area">
-          <span className="weather-badge">
-            {activeSlide === 0 ? '☀️ Live Weather' : '📅 Trip Forecast'}
-          </span>
-          {locationName && (
-            <span className="weather-location text-xs font-semibold block mt-1" title={locationName}>
-              📍 {locationName}
+    <>
+      <div 
+        className="weather-widget weather-slideshow card border-primary"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onFocus={() => setIsPaused(true)}
+        onBlur={() => setIsPaused(false)}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        role="region"
+        aria-label={`Weather forecast for ${locationName || 'destination'}`}
+      >
+        {/* Slideshow Top Header */}
+        <div className="weather-header flex justify-between items-center mb-3">
+          <div className="weather-title-area">
+            <span className="weather-badge">
+              {activeSlide === 0 ? '☀️ Live Weather' : '📅 Trip Forecast'}
             </span>
-          )}
+            {locationName && (
+              <span className="weather-location text-xs font-semibold block mt-1" title={locationName}>
+                📍 {locationName}
+              </span>
+            )}
+          </div>
+
+          <div className="weather-header-actions flex items-center gap-2">
+            {/* Tab Controls (if tripDate is provided) */}
+            {hasTripDate && (
+              <div className="weather-tabs" role="tablist" aria-label="Weather view tabs">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeSlide === 0}
+                  className={`weather-tab-btn ${activeSlide === 0 ? 'active' : ''}`}
+                  onClick={() => setActiveSlide(0)}
+                >
+                  Current
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeSlide === 1}
+                  className={`weather-tab-btn ${activeSlide === 1 ? 'active' : ''}`}
+                  onClick={() => setActiveSlide(1)}
+                >
+                  Trip Date
+                </button>
+              </div>
+            )}
+
+            {/* FULL VIEW BUTTON */}
+            <button
+              ref={fullViewButtonRef}
+              type="button"
+              className="weather-full-view-btn btn btn-ghost btn-sm"
+              onClick={() => setIsFullViewOpen(true)}
+              aria-label={`Open full weather view for ${locationName || 'destination'}`}
+              title="Expand full weather view"
+            >
+              <span className="weather-full-view-icon" aria-hidden="true">⤢</span>
+              <span className="weather-full-view-text">Full View</span>
+            </button>
+          </div>
         </div>
 
-        {/* Tab Controls (if tripDate is provided) */}
-        {hasTripDate && (
-          <div className="weather-tabs" role="tablist" aria-label="Weather view tabs">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeSlide === 0}
-              className={`weather-tab-btn ${activeSlide === 0 ? 'active' : ''}`}
-              onClick={() => setActiveSlide(0)}
-            >
-              Current
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeSlide === 1}
-              className={`weather-tab-btn ${activeSlide === 1 ? 'active' : ''}`}
-              onClick={() => setActiveSlide(1)}
-            >
-              Trip Date
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Slide Container: Current vs Trip Date */}
-      <div className="weather-slide-container">
-        {/* SLIDE 0: Current Weather */}
-        {activeSlide === 0 && (
-          <div className="weather-slide current-slide animate-fade-in">
-            <div className="weather-body flex justify-between items-center">
-              <div>
-                <div className="weather-temp-row flex items-baseline gap-2">
-                  <span className="weather-temp text-3xl font-black text-primary">
-                    {Math.round(current.temperature)}°C
-                  </span>
-                  <span className="weather-condition text-sm font-medium capitalize text-muted">
-                    {current.condition}
-                  </span>
-                </div>
-                {current.description && (
-                  <p className="weather-desc text-xs text-muted capitalize mt-0.5">
-                    {current.description}
-                  </p>
-                )}
-              </div>
-
-              {current.icon && (
-                <div className="weather-icon-wrapper">
-                  <img 
-                    src={`https://openweathermap.org/img/wn/${current.icon}@2x.png`} 
-                    alt={current.condition} 
-                    className="weather-icon"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
-              <div>💧 Humidity: <span className="font-semibold text-main">{current.humidity}%</span></div>
-              <div>💨 Wind: <span className="font-semibold text-main">{current.wind_speed} m/s</span></div>
-            </div>
-          </div>
-        )}
-
-        {/* SLIDE 1: Trip Date Forecast */}
-        {activeSlide === 1 && (
-          <div className="weather-slide forecast-slide animate-fade-in">
-            {forecast && forecast.available ? (
-              <div>
-                <div className="weather-forecast-date text-xs text-primary font-bold mb-1">
-                  📅 {formatTripDate(forecast.date || tripDate)}
-                </div>
-
-                <div className="weather-body flex justify-between items-center">
-                  <div>
-                    <div className="weather-temp-row flex items-baseline gap-2">
-                      <span className="weather-temp text-3xl font-black text-primary">
-                        {forecast.temperature}°C
-                      </span>
-                      {forecast.min_temperature !== undefined && (
-                        <span className="text-xs text-muted font-semibold">
-                          / {forecast.min_temperature}°C
-                        </span>
-                      )}
-                      <span className="weather-condition text-sm font-medium capitalize text-muted">
-                        {forecast.condition}
-                      </span>
-                    </div>
-                    {forecast.description && (
-                      <p className="weather-desc text-xs text-muted capitalize mt-0.5">
-                        {forecast.description}
-                      </p>
-                    )}
+        {/* Slide Container: Current vs Trip Date */}
+        <div className="weather-slide-container">
+          {/* SLIDE 0: Current Weather */}
+          {activeSlide === 0 && (
+            <div className="weather-slide current-slide animate-fade-in">
+              <div className="weather-body flex justify-between items-center">
+                <div>
+                  <div className="weather-temp-row flex items-baseline gap-2">
+                    <span className="weather-temp text-3xl font-black text-primary">
+                      {Math.round(current.temperature)}°C
+                    </span>
+                    <span className="weather-condition text-sm font-medium capitalize text-muted">
+                      {current.condition}
+                    </span>
                   </div>
-
-                  {forecast.icon && (
-                    <div className="weather-icon-wrapper">
-                      <img 
-                        src={`https://openweathermap.org/img/wn/${forecast.icon}@2x.png`} 
-                        alt={forecast.condition} 
-                        className="weather-icon"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    </div>
+                  {current.description && (
+                    <p className="weather-desc text-xs text-muted capitalize mt-0.5">
+                      {current.description}
+                    </p>
                   )}
                 </div>
 
-                <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
-                  <div>🌧️ Rain: <span className="font-semibold text-main">{forecast.precipitation_probability}%</span></div>
-                  <div>💨 Wind: <span className="font-semibold text-main">{forecast.wind_speed} m/s</span></div>
+                <div className="weather-icon-wrapper">
+                  <WeatherIcon icon={current.icon} condition={current.condition} size={48} />
                 </div>
               </div>
-            ) : (
-              /* Fallback for trip dates beyond forecast range */
-              <div className="weather-unavailable-card p-2.5 text-center">
-                <div className="text-xl mb-1">🔭</div>
-                <h5 className="text-xs font-bold text-main">Forecast not available yet</h5>
-                <p className="text-xs text-muted mt-1 leading-relaxed">
-                  Weather forecasts for this date aren&apos;t available yet. Check again closer to your trip.
-                </p>
-                <span className="text-[10px] text-muted opacity-75 mt-1 block font-medium">
-                  Trip Date: {formatTripDate(tripDate)}
-                </span>
+
+              <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
+                <div>💧 Humidity: <span className="font-semibold text-main">{current.humidity}%</span></div>
+                <div>💨 Wind: <span className="font-semibold text-main">{current.wind_speed} m/s</span></div>
               </div>
-            )}
+            </div>
+          )}
+
+          {/* SLIDE 1: Trip Date Forecast */}
+          {activeSlide === 1 && (
+            <div className="weather-slide forecast-slide animate-fade-in">
+              {forecast && forecast.available ? (
+                <div>
+                  <div className="weather-forecast-date text-xs text-primary font-bold mb-1">
+                    📅 {formatTripDate(forecast.date || tripDate)}
+                  </div>
+
+                  <div className="weather-body flex justify-between items-center">
+                    <div>
+                      <div className="weather-temp-row flex items-baseline gap-2">
+                        <span className="weather-temp text-3xl font-black text-primary">
+                          {forecast.temperature}°C
+                        </span>
+                        {forecast.min_temperature !== undefined && (
+                          <span className="text-xs text-muted font-semibold">
+                            / {forecast.min_temperature}°C
+                          </span>
+                        )}
+                        <span className="weather-condition text-sm font-medium capitalize text-muted">
+                          {forecast.condition}
+                        </span>
+                      </div>
+                      {forecast.description && (
+                        <p className="weather-desc text-xs text-muted capitalize mt-0.5">
+                          {forecast.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="weather-icon-wrapper">
+                      <WeatherIcon icon={forecast.icon} condition={forecast.condition} size={48} />
+                    </div>
+                  </div>
+
+                  <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
+                    <div>🌧️ Rain: <span className="font-semibold text-main">{forecast.precipitation_probability}%</span></div>
+                    <div>💨 Wind: <span className="font-semibold text-main">{forecast.wind_speed} m/s</span></div>
+                  </div>
+                </div>
+              ) : (
+                /* Fallback for trip dates beyond forecast range */
+                <div className="weather-unavailable-card p-2.5 text-center">
+                  <div className="text-xl mb-1">🔭</div>
+                  <h5 className="text-xs font-bold text-main">Forecast unavailable for this date yet.</h5>
+                  <p className="text-xs text-muted mt-1 leading-relaxed">
+                    Forecasts are available up to 16 days ahead. Check back closer to your trip date.
+                  </p>
+                  <span className="text-[10px] text-muted opacity-80 mt-1 block font-semibold">
+                    Scheduled: {formatTripDate(tripDate)}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* GRAPHICAL FORECAST CARDS */}
+        {dailyForecast.length > 0 && (
+          <div className="weather-daily-forecast-section mt-3 pt-2.5 border-t border-border">
+            <div className="weather-daily-grid flex gap-1.5 overflow-x-auto pb-1">
+              {dailyForecast.map((dayItem, idx) => (
+                <div key={idx} className={`weather-daily-pill ${idx === 0 ? 'today' : ''}`}>
+                  <span className="weather-daily-pill__day">{dayItem.day}</span>
+                  <WeatherIcon icon={dayItem.icon} condition={dayItem.condition} size={24} />
+                  <span className="weather-daily-pill__temp">{dayItem.temperature_max}°</span>
+                  <span className="weather-daily-pill__min-temp">{dayItem.temperature_min}°</span>
+                  {dayItem.precipitation_probability > 0 && (
+                    <span className="weather-daily-pill__rain" title={`Rain probability: ${dayItem.precipitation_probability}%`}>
+                      💧{dayItem.precipitation_probability}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* GRAPHICAL TEMPERATURE TREND */}
+        {renderSparkline()}
+
+        {/* Slideshow Footer Controls (if tripDate is provided) */}
+        {hasTripDate && (
+          <div className="weather-controls flex justify-between items-center mt-3 pt-2 border-t border-border">
+            <button 
+              type="button" 
+              className="weather-nav-btn prev"
+              onClick={prevSlide}
+              aria-label="Previous weather slide"
+              title="Previous slide"
+            >
+              ‹
+            </button>
+
+            <div className="weather-dots flex gap-1.5" role="tablist" aria-label="Slide indicators">
+              <button
+                type="button"
+                className={`weather-dot ${activeSlide === 0 ? 'active' : ''}`}
+                onClick={() => setActiveSlide(0)}
+                aria-label="Slide 1: Current weather"
+                aria-selected={activeSlide === 0}
+              />
+              <button
+                type="button"
+                className={`weather-dot ${activeSlide === 1 ? 'active' : ''}`}
+                onClick={() => setActiveSlide(1)}
+                aria-label="Slide 2: Trip date forecast"
+                aria-selected={activeSlide === 1}
+              />
+            </div>
+
+            <button 
+              type="button" 
+              className="weather-nav-btn next"
+              onClick={nextSlide}
+              aria-label="Next weather slide"
+              title="Next slide"
+            >
+              ›
+            </button>
           </div>
         )}
       </div>
 
-      {/* GRAPHICAL FORECAST CARDS (Daily weather at a glance) */}
-      {dailyForecast.length > 0 && (
-        <div className="weather-daily-forecast-section mt-3 pt-2.5 border-t border-border">
-          <div className="weather-daily-grid flex gap-1.5 overflow-x-auto pb-1">
-            {dailyForecast.map((dayItem, idx) => (
-              <div key={idx} className={`weather-daily-pill ${idx === 0 ? 'today' : ''}`}>
-                <span className="weather-daily-pill__day">{dayItem.day}</span>
-                {dayItem.icon && (
-                  <img
-                    src={`https://openweathermap.org/img/wn/${dayItem.icon}.png`}
-                    alt={dayItem.condition}
-                    className="weather-daily-pill__icon"
-                  />
-                )}
-                <span className="weather-daily-pill__temp">{dayItem.temperature_max}°</span>
-                <span className="weather-daily-pill__min-temp">{dayItem.temperature_min}°</span>
-                {dayItem.precipitation_probability > 0 && (
-                  <span className="weather-daily-pill__rain" title={`Rain probability: ${dayItem.precipitation_probability}%`}>
-                    💧{dayItem.precipitation_probability}%
-                  </span>
-                )}
+      {/* FULL VIEW MODAL */}
+      {isFullViewOpen && (
+        <div 
+          className="weather-modal-backdrop" 
+          onClick={() => setIsFullViewOpen(false)}
+          role="presentation"
+        >
+          <div 
+            className="weather-fullview-modal card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="weather-fullview-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="weather-fullview-header flex justify-between items-center pb-3 border-b border-border">
+              <div>
+                <span className="badge bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+                  Full Weather Experience
+                </span>
+                <h3 id="weather-fullview-title" className="text-xl font-black text-main mt-1">
+                  📍 {locationName || 'Destination Weather'}
+                </h3>
               </div>
-            ))}
+              <button
+                type="button"
+                className="weather-modal-close-btn btn btn-ghost text-lg p-2"
+                onClick={() => {
+                  setIsFullViewOpen(false);
+                  if (fullViewButtonRef.current) fullViewButtonRef.current.focus();
+                }}
+                aria-label="Close full weather view"
+                title="Close (Escape)"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="weather-fullview-body py-4 flex flex-col gap-6">
+              
+              {/* CURRENT WEATHER HERO */}
+              <div className="weather-fullview-hero card bg-surface-secondary border border-border p-4 rounded-xl">
+                <div className="text-xs font-bold text-muted uppercase tracking-wider mb-2">
+                  Current Weather
+                </div>
+                <div className="flex flex-wrap justify-between items-center gap-4">
+                  <div className="flex items-center gap-4">
+                    <WeatherIcon icon={current.icon} condition={current.condition} size={64} />
+                    <div>
+                      <div className="text-4xl md:text-5xl font-black text-primary">
+                        {Math.round(current.temperature)}°C
+                      </div>
+                      <div className="text-base font-bold text-main capitalize mt-0.5">
+                        {current.condition}
+                      </div>
+                      {current.description && (
+                        <div className="text-xs text-muted capitalize">
+                          {current.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Comprehensive Metric Grid */}
+                  <div className="weather-metrics-grid grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface p-3 rounded-lg border border-border">
+                    <div className="weather-metric-item">
+                      <span className="text-[11px] text-muted block">💧 Humidity</span>
+                      <span className="text-sm font-extrabold text-main">{current.humidity}%</span>
+                    </div>
+                    <div className="weather-metric-item">
+                      <span className="text-[11px] text-muted block">💨 Wind Speed</span>
+                      <span className="text-sm font-extrabold text-main">{current.wind_speed} m/s</span>
+                    </div>
+                    <div className="weather-metric-item">
+                      <span className="text-[11px] text-muted block">🌡️ Today High</span>
+                      <span className="text-sm font-extrabold text-primary">
+                        {dailyForecast[0]?.temperature_max != null ? `${dailyForecast[0].temperature_max}°C` : '--'}
+                      </span>
+                    </div>
+                    <div className="weather-metric-item">
+                      <span className="text-[11px] text-muted block">❄️ Today Low</span>
+                      <span className="text-sm font-extrabold text-muted">
+                        {dailyForecast[0]?.temperature_min != null ? `${dailyForecast[0].temperature_min}°C` : '--'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* TRIP-DATE WEATHER HIGHLIGHT */}
+              {hasTripDate && (
+                <div className="weather-tripdate-section card border-primary p-4 bg-primary-light/10 rounded-xl">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="badge bg-primary text-white text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                      📅 Your Trip Date Weather
+                    </span>
+                    <span className="text-xs font-bold text-primary">
+                      {formatTripDate(tripDate)}
+                    </span>
+                  </div>
+
+                  {forecast && forecast.available ? (
+                    <div className="flex flex-wrap justify-between items-center gap-3 pt-1">
+                      <div className="flex items-center gap-3">
+                        <WeatherIcon icon={forecast.icon} condition={forecast.condition} size={48} />
+                        <div>
+                          <span className="text-2xl font-black text-primary">
+                            {forecast.temperature}°C
+                          </span>
+                          {forecast.min_temperature !== undefined && (
+                            <span className="text-xs text-muted font-bold ml-1.5">
+                              / {forecast.min_temperature}°C
+                            </span>
+                          )}
+                          <div className="text-sm font-bold text-main capitalize">
+                            {forecast.condition} — {forecast.description}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-4 text-xs font-semibold text-muted bg-surface py-2 px-3 rounded border border-border">
+                        <div>🌧️ Rain Chance: <span className="text-main font-bold">{forecast.precipitation_probability}%</span></div>
+                        <div>💨 Wind: <span className="text-main font-bold">{forecast.wind_speed} m/s</span></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-surface rounded border border-dashed border-border text-center">
+                      <div className="text-lg">🔭</div>
+                      <h4 className="text-xs font-bold text-main mt-1">Forecast unavailable for this date yet.</h4>
+                      <p className="text-xs text-muted mt-0.5">
+                        Weather forecasts become available within 16 days of your trip date ({formatTripDate(tripDate)}). Check back closer to departure.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* EXTENDED FORECAST TIMELINE */}
+              {dailyForecast.length > 0 && (
+                <div className="weather-extended-forecast-section">
+                  <div className="flex justify-between items-center mb-2.5">
+                    <h4 className="font-extrabold text-sm text-main uppercase tracking-wider">
+                      7-Day Forecast Timeline
+                    </h4>
+                    <span className="text-xs text-muted">Updated in real-time</span>
+                  </div>
+
+                  <div className="weather-fullview-grid grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+                    {dailyForecast.map((dayItem, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`weather-fullview-card card p-3 flex flex-col items-center text-center rounded-lg border ${
+                          idx === 0 ? 'border-primary bg-primary-light/10' : 'border-border bg-surface'
+                        }`}
+                      >
+                        <span className="text-xs font-black text-main">
+                          {idx === 0 ? 'Today' : idx === 1 ? 'Tomorrow' : dayItem.day}
+                        </span>
+                        <span className="text-[10px] text-muted mb-1">
+                          {formatDateWithWeekday(dayItem.date).split(',')[1] || dayItem.date}
+                        </span>
+
+                        <WeatherIcon icon={dayItem.icon} condition={dayItem.condition} size={36} />
+
+                        <div className="weather-fullview-temp text-base font-black text-primary mt-1">
+                          {dayItem.temperature_max}°
+                        </div>
+                        <div className="weather-fullview-mintemp text-xs font-semibold text-muted">
+                          {dayItem.temperature_min}°
+                        </div>
+
+                        <span className="text-[11px] font-medium text-muted capitalize truncate w-full mt-1">
+                          {dayItem.condition}
+                        </span>
+
+                        {dayItem.precipitation_probability > 0 && (
+                          <span className="badge bg-surface-secondary text-primary text-[10px] font-bold mt-1.5 px-1.5 py-0.5 rounded border border-border">
+                            💧 {dayItem.precipitation_probability}%
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* DETAILED TEMPERATURE TREND GRAPH */}
+              <div className="weather-fullview-trend pt-2 border-t border-border">
+                {renderSparkline(560, 64)}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="weather-fullview-footer pt-3 border-t border-border flex justify-between items-center text-xs text-muted">
+              <span>Weather data provided by Open-Meteo & OpenWeatherMap</span>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  setIsFullViewOpen(false);
+                  if (fullViewButtonRef.current) fullViewButtonRef.current.focus();
+                }}
+              >
+                Close Full View
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* GRAPHICAL TEMPERATURE TREND (Lightweight SVG Sparkline) */}
-      {renderSparkline()}
-
-      {/* Slideshow Footer Controls (if tripDate is provided) */}
-      {hasTripDate && (
-        <div className="weather-controls flex justify-between items-center mt-3 pt-2 border-t border-border">
-          <button 
-            type="button" 
-            className="weather-nav-btn prev"
-            onClick={prevSlide}
-            aria-label="Previous weather slide"
-            title="Previous slide"
-          >
-            ‹
-          </button>
-
-          {/* Dot indicators */}
-          <div className="weather-dots flex gap-1.5" role="tablist" aria-label="Slide indicators">
-            <button
-              type="button"
-              className={`weather-dot ${activeSlide === 0 ? 'active' : ''}`}
-              onClick={() => setActiveSlide(0)}
-              aria-label="Slide 1: Current weather"
-              aria-selected={activeSlide === 0}
-            />
-            <button
-              type="button"
-              className={`weather-dot ${activeSlide === 1 ? 'active' : ''}`}
-              onClick={() => setActiveSlide(1)}
-              aria-label="Slide 2: Trip date forecast"
-              aria-selected={activeSlide === 1}
-            />
-          </div>
-
-          <button 
-            type="button" 
-            className="weather-nav-btn next"
-            onClick={nextSlide}
-            aria-label="Next weather slide"
-            title="Next slide"
-          >
-            ›
-          </button>
-        </div>
-      )}
-    </div>
+    </>
   );
 }

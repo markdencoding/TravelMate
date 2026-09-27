@@ -17,6 +17,11 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Remove Leaflet promotional prefix link while strictly preserving required OpenStreetMap attribution
+if (L.Control && L.Control.Attribution) {
+  L.Control.Attribution.prototype.options.prefix = false;
+}
+
 const POPULAR_CURRENCIES = [
   { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
   { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -280,16 +285,16 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Search Input with Autocomplete */}
-        <div className="form-group relative" ref={dropdownRef}>
-          <label htmlFor="search_location" className="form-label font-semibold">
+        <div className="form-group destination-search-group relative" ref={dropdownRef}>
+          <label htmlFor="search_location" className="form-label">
             Search for a place *
           </label>
           <div className="search-input-wrapper relative flex items-center">
-            <span className="search-icon absolute left-3 text-muted text-sm">🔍</span>
+            <span className="search-icon" aria-hidden="true">🔍</span>
             <input
               id="search_location"
               type="text"
-              className="form-input search-input pl-9 pr-8 w-full"
+              className="form-input search-input"
               value={searchQuery}
               onChange={handleSearchInputChange}
               onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
@@ -299,8 +304,9 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
             {searchQuery && (
               <button
                 type="button"
-                className="search-clear-btn absolute right-2.5 text-muted hover:text-primary text-sm p-1"
+                className="search-clear-btn"
                 onClick={handleClearSearch}
+                aria-label="Clear search location"
                 title="Clear search"
               >
                 ✕
@@ -424,7 +430,6 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
             </div>
             <div className="text-[11px] text-muted mt-2 flex justify-between items-center">
               <span>📍 Click anywhere on the map to reposition the pin.</span>
-              <span className="text-primary font-medium">Interactive Map</span>
             </div>
           </div>
         ) : (
