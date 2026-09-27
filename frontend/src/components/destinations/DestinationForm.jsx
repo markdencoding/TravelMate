@@ -54,6 +54,18 @@ function FormMapRecenter({ center, zoom }) {
   return null;
 }
 
+// Map resize invalidator for smooth maximize/minimize transitions
+function MapResizeHandler({ isMaximized }) {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [isMaximized, map]);
+  return null;
+}
+
 // Click-to-locate handler for Leaflet
 function FormMapClickHandler({ onMapClick }) {
   useMapEvents({
@@ -86,8 +98,28 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
   const [validationError, setValidationError] = useState(null);
   const [isReverseGeocoding, setIsReverseGeocoding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   const dropdownRef = useRef(null);
+
+  // Lock body scroll and listen for Escape key when map is maximized
+  useEffect(() => {
+    if (!isMaximized) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsMaximized(false);
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMaximized]);
 
   // Default center: initial coords or Philippines center
   const defaultCenter = initialData?.latitude && initialData?.longitude
@@ -387,12 +419,51 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
             </div>
 
             {/* Interactive Leaflet Map Centered on Selected Destination */}
-            <div className="destination-form-map-wrapper rounded-lg overflow-hidden border border-border mb-3">
+            <div className={`destination-form-map-wrapper relative rounded-lg overflow-hidden border border-border mb-3 ${isMaximized ? 'is-maximized' : ''}`}>
+              {/* Maximized View Header Bar */}
+              {isMaximized && (
+                <div className="map-maximized-floating-bar flex justify-between items-center p-3">
+                  <div className="flex items-center gap-2 bg-surface p-2 px-3 rounded-lg border border-border shadow-md">
+                    <span className="text-primary font-bold text-sm">📍 {formData.name || 'Selected Location'}</span>
+                    <span className="text-xs text-muted font-mono">
+                      ({Number(formData.latitude).toFixed(4)}°, {Number(formData.longitude).toFixed(4)}°)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm flex items-center gap-1.5 shadow-md bg-surface"
+                    onClick={() => setIsMaximized(false)}
+                    aria-label="Minimize map (Esc)"
+                  >
+                    <span>✕</span> Exit Full Map (Esc)
+                  </button>
+                </div>
+              )}
+
+              {/* Google-Maps-Style Maximize / Minimize Button */}
+              <button
+                type="button"
+                className="map-maximize-btn"
+                onClick={() => setIsMaximized(prev => !prev)}
+                aria-label={isMaximized ? "Minimize map view" : "Maximize map view"}
+                title={isMaximized ? "Minimize map (Esc)" : "Maximize map view"}
+              >
+                {isMaximized ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                  </svg>
+                )}
+              </button>
+
               <MapContainer
                 center={mapCenter}
                 zoom={mapZoom}
                 scrollWheelZoom={true}
-                style={{ height: '260px', width: '100%' }}
+                style={{ height: isMaximized ? '100vh' : '260px', width: '100%' }}
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -406,6 +477,7 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
                 </Marker>
                 <FormMapRecenter center={mapCenter} zoom={mapZoom} />
                 <FormMapClickHandler onMapClick={handleMapClick} />
+                <MapResizeHandler isMaximized={isMaximized} />
               </MapContainer>
             </div>
 
@@ -437,12 +509,48 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
             <div className="p-4 border border-dashed rounded-xl text-center text-muted text-sm bg-surface-secondary mb-3">
               🗺️ Search for a destination above or click anywhere on the map to set location coordinates.
             </div>
-            <div className="destination-form-map-wrapper rounded-lg overflow-hidden border border-border">
+            <div className={`destination-form-map-wrapper relative rounded-lg overflow-hidden border border-border ${isMaximized ? 'is-maximized' : ''}`}>
+              {/* Maximized View Header Bar */}
+              {isMaximized && (
+                <div className="map-maximized-floating-bar flex justify-between items-center p-3">
+                  <div className="flex items-center gap-2 bg-surface p-2 px-3 rounded-lg border border-border shadow-md">
+                    <span className="text-primary font-bold text-sm">🗺️ Click anywhere on the map to pin location</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm flex items-center gap-1.5 shadow-md bg-surface"
+                    onClick={() => setIsMaximized(false)}
+                    aria-label="Minimize map (Esc)"
+                  >
+                    <span>✕</span> Exit Full Map (Esc)
+                  </button>
+                </div>
+              )}
+
+              {/* Google-Maps-Style Maximize / Minimize Button */}
+              <button
+                type="button"
+                className="map-maximize-btn"
+                onClick={() => setIsMaximized(prev => !prev)}
+                aria-label={isMaximized ? "Minimize map view" : "Maximize map view"}
+                title={isMaximized ? "Minimize map (Esc)" : "Maximize map view"}
+              >
+                {isMaximized ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                  </svg>
+                )}
+              </button>
+
               <MapContainer
                 center={mapCenter}
                 zoom={mapZoom}
                 scrollWheelZoom={true}
-                style={{ height: '240px', width: '100%' }}
+                style={{ height: isMaximized ? '100vh' : '240px', width: '100%' }}
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -450,6 +558,7 @@ export default function DestinationForm({ onSubmit, onCancel, initialData = null
                 />
                 <FormMapRecenter center={mapCenter} zoom={mapZoom} />
                 <FormMapClickHandler onMapClick={handleMapClick} />
+                <MapResizeHandler isMaximized={isMaximized} />
               </MapContainer>
             </div>
           </div>

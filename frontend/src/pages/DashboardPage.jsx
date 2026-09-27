@@ -94,12 +94,29 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard">
-      <div className="page-header dashboard-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      {/* Travel Command Center Header (No generic 'Dashboard' title) */}
+      <div className="dashboard-command-header flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="page-title">Dashboard</h1>
-          <p className="page-subtitle">Your upcoming trips and stats</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="badge bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+              ✈️ Travel Command Center
+            </span>
+            {active_trip && (
+              <span className="badge bg-success-light text-success text-xs font-bold">
+                ● Live Trip Active
+              </span>
+            )}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-main">
+            Welcome back, {user?.name?.split(' ')[0] || user?.name || 'Traveler'}!
+          </h2>
+          <p className="text-muted text-sm mt-0.5">
+            {total_trips > 0 
+              ? `${total_trips} total ${total_trips === 1 ? 'trip' : 'trips'} planned • ${upcoming_trips?.length || 0} upcoming adventures`
+              : 'Start your journey by creating your first trip.'}
+          </p>
         </div>
-        <div className="dashboard-quick-actions flex items-center gap-2.5 flex-wrap">
+        <div className="dashboard-header-actions flex items-center gap-2.5 flex-wrap">
           <button 
             type="button"
             className="btn btn-primary flex items-center gap-2" 
@@ -115,7 +132,9 @@ export default function DashboardPage() {
             <span>🌍</span> View All Trips
           </button>
         </div>
-      </div> {total_trips === 0 ? (
+      </div>
+
+      {total_trips === 0 ? (
         <EmptyState
           icon="🌍"
           title="No trips yet"
@@ -135,45 +154,52 @@ export default function DashboardPage() {
             {/* Spotlight Trip (Active or Next) */}
             {spotlightTrip && (
               <div className="spotlight-card card border-primary p-6">
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
                   <div>
-                    <span className="badge bg-primary-light text-primary mb-2 inline-block">
-                      {active_trip ? '🔥 Active Now' : '🗓️ Next Upcoming'}
-                    </span>
-                    <h2 className="text-2xl font-bold">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="badge bg-primary-light text-primary text-xs font-bold uppercase tracking-wider">
+                        {active_trip ? '🔥 Active Now' : '🗓️ Next Upcoming'}
+                      </span>
+                      {spotlightTrip.primary_destination && (
+                        <span className="badge bg-surface-secondary text-main text-xs border border-border font-semibold">
+                          📍 {spotlightTrip.primary_destination}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-main">
                       <Link to={`/trips/${spotlightTrip.id}`} className="hover:text-primary transition-colors">
                         {spotlightTrip.name}
                       </Link>
-                    </h2>
-                    <p className="text-muted mt-1">
-                      {formatDate(spotlightTrip.start_date)} — {formatDate(spotlightTrip.end_date)}
+                    </h3>
+                    <p className="text-muted text-sm mt-1 flex items-center gap-1.5">
+                      <span>📅</span> {formatDate(spotlightTrip.start_date)} — {formatDate(spotlightTrip.end_date)}
                     </p>
                   </div>
-                  <Link to={`/trips/${spotlightTrip.id}`} className="btn btn-primary btn-sm">
-                    Open Trip
+                  <Link to={`/trips/${spotlightTrip.id}`} className="btn btn-primary btn-sm self-start whitespace-nowrap">
+                    Open Trip →
                   </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                   {/* Next Activity Box */}
                   <div className="dashboard-inset">
-                    <h4 className="dashboard-inset__label">Next Activity</h4>
+                    <h4 className="dashboard-inset__label">Next Scheduled Activity</h4>
                     {spotlightTrip.next_activity ? (
                       <div>
-                        <div className="font-bold text-lg">{spotlightTrip.next_activity.name}</div>
-                        <div className="text-sm text-primary mt-1">
-                          📅 {formatDate(spotlightTrip.next_activity.date)} at {formatTime(spotlightTrip.next_activity.start_time)}
+                        <div className="font-bold text-base text-main">{spotlightTrip.next_activity.name}</div>
+                        <div className="text-xs font-semibold text-primary mt-1 flex items-center gap-1">
+                          <span>📅</span> {formatDate(spotlightTrip.next_activity.date)} at {formatTime(spotlightTrip.next_activity.start_time)}
                         </div>
                       </div>
                     ) : (
-                      <div className="text-muted text-sm italic">No upcoming activities scheduled.</div>
+                      <div className="text-muted text-xs italic py-1">No upcoming activities scheduled for today.</div>
                     )}
                   </div>
 
-                  {/* Budget Box */}
+                  {/* Budget & Spending Breakdown Box */}
                   <div className="dashboard-inset">
                     <div className="flex justify-between items-center mb-1">
-                      <h4 className="dashboard-inset__label mb-0">Budget ({spotlightBaseCurrency})</h4>
+                      <h4 className="dashboard-inset__label mb-0">Trip Budget & Spending ({spotlightBaseCurrency})</h4>
                       {spotlightConvertedBudget && spotlightDestCurrency !== spotlightBaseCurrency && (
                         <span className="text-[11px] font-bold text-primary">
                           ≈ {currencyService.formatAmount(spotlightConvertedBudget, spotlightDestCurrency)}
@@ -182,9 +208,13 @@ export default function DashboardPage() {
                     </div>
                     {spotlightTrip.budget_summary ? (
                       <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Spent: {currencyService.formatAmount(spotlightTrip.budget_summary.total_spent, spotlightBaseCurrency)}</span>
-                          <span className="font-bold">Total: {currencyService.formatAmount(spotlightTrip.budget_summary.total_budget, spotlightBaseCurrency)}</span>
+                        <div className="flex justify-between items-baseline mb-1">
+                          <span className={`text-base font-extrabold ${spotlightTrip.budget_summary.remaining_budget < 0 ? 'text-error' : 'text-success'}`}>
+                            {currencyService.formatAmount(spotlightTrip.budget_summary.remaining_budget, spotlightBaseCurrency)} Remaining
+                          </span>
+                          <span className="text-xs text-muted">
+                            Total: {currencyService.formatAmount(spotlightTrip.budget_summary.total_budget, spotlightBaseCurrency)}
+                          </span>
                         </div>
                         <div className="dashboard-progress-track">
                           <div 
@@ -196,12 +226,13 @@ export default function DashboardPage() {
                             }}
                           ></div>
                         </div>
-                        <div className={`text-xs mt-2 font-bold ${spotlightTrip.budget_summary.remaining_budget < 0 ? 'text-error' : 'text-success'}`}>
-                          Remaining: {currencyService.formatAmount(spotlightTrip.budget_summary.remaining_budget, spotlightBaseCurrency)}
+                        <div className="flex justify-between text-[11px] text-muted mt-1">
+                          <span>Spent: {currencyService.formatAmount(spotlightTrip.budget_summary.total_spent, spotlightBaseCurrency)}</span>
+                          <span>{spotlightTrip.budget_summary.total_budget > 0 ? Math.round((spotlightTrip.budget_summary.total_spent / spotlightTrip.budget_summary.total_budget) * 100) : 0}% used</span>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-muted text-sm italic">No budget set.</div>
+                      <div className="text-muted text-xs italic py-1">No estimated budget configured.</div>
                     )}
                   </div>
                 </div>
@@ -211,29 +242,41 @@ export default function DashboardPage() {
             {/* Upcoming Trips List */}
             <div className="dashboard-section card p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold">Upcoming Trips</h3>
-                <Link to="/trips" className="text-sm text-primary hover:underline">View all ({total_trips})</Link>
+                <div>
+                  <h3 className="text-xl font-bold text-main">Upcoming Adventures</h3>
+                  <p className="text-xs text-muted mt-0.5">Your planned itineraries and travel dates</p>
+                </div>
+                <Link to="/trips" className="text-xs font-semibold text-primary hover:underline">
+                  View all ({total_trips}) →
+                </Link>
               </div>
               
               {upcoming_trips && upcoming_trips.length > 0 ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2.5">
                   {upcoming_trips.map(trip => (
                     <div key={trip.id} className="dashboard-trip-row">
-                      <div>
-                        <Link to={`/trips/${trip.id}`} className="font-bold hover:text-primary">
+                      <div className="min-w-0 pr-3">
+                        <Link to={`/trips/${trip.id}`} className="font-bold text-main hover:text-primary truncate block text-sm">
                           {trip.name}
                         </Link>
-                        <div className="text-sm text-muted">
-                          {trip.primary_destination && `📍 ${trip.primary_destination} • `}
-                          {formatDate(trip.start_date)}
+                        <div className="text-xs text-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+                          {trip.primary_destination && (
+                            <span className="font-medium text-main">📍 {trip.primary_destination}</span>
+                          )}
+                          <span>•</span>
+                          <span>📅 {formatDate(trip.start_date)}</span>
                         </div>
                       </div>
-                      <Link to={`/trips/${trip.id}`} className="btn btn-ghost btn-sm">View</Link>
+                      <Link to={`/trips/${trip.id}`} className="btn btn-ghost btn-sm whitespace-nowrap">
+                        View Trip →
+                      </Link>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-muted italic">No other upcoming trips.</div>
+                <div className="text-muted text-sm italic p-4 bg-surface-secondary rounded-lg text-center">
+                  No other upcoming trips scheduled. Ready for a new getaway?
+                </div>
               )}
             </div>
 
@@ -242,7 +285,7 @@ export default function DashboardPage() {
           {/* Sidebar */}
           <div className="dashboard-sidebar flex flex-col gap-6">
             
-            {/* Weather Widget Slideshow */}
+            {/* Live Weather Widget & Forecast */}
             {spotlightTrip && spotlightTrip.destination ? (
               <WeatherWidget 
                 latitude={spotlightTrip.destination.latitude} 
@@ -251,21 +294,62 @@ export default function DashboardPage() {
                 tripDate={spotlightTrip.start_date}
               />
             ) : spotlightTrip ? (
-              <div className="weather-widget error">
-                <div className="text-center p-2">
-                  <span className="text-xl">☁️</span>
-                  <h4 className="font-bold text-sm mt-1">Destination Weather</h4>
-                  {spotlightTrip.primary_destination && (
-                    <span className="weather-location text-xs text-muted block mt-0.5">
-                      📍 {spotlightTrip.primary_destination}
-                    </span>
-                  )}
-                  <p className="text-muted text-xs mt-2">
-                    Weather unavailable for this trip.<br/>Add a destination map location to view live weather and forecast.
-                  </p>
-                </div>
+              <div className="weather-widget error card p-4 text-center">
+                <span className="text-2xl block mb-1">☁️</span>
+                <h4 className="font-bold text-sm text-main">Destination Weather</h4>
+                {spotlightTrip.primary_destination && (
+                  <span className="text-xs text-muted block mt-0.5">
+                    📍 {spotlightTrip.primary_destination}
+                  </span>
+                )}
+                <p className="text-muted text-xs mt-2">
+                  Weather unavailable for this trip.<br/>Add a destination map location to view live forecast.
+                </p>
               </div>
             ) : null}
+
+            {/* Quick Travel Actions Panel */}
+            <div className="dashboard-section card p-5">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-sm text-main flex items-center gap-2 uppercase tracking-wider text-[11px]">
+                  <span>⚡</span> Quick Actions
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  className="quick-action-tile"
+                  onClick={() => navigate('/trips/new')}
+                >
+                  <span className="quick-action-icon">➕</span>
+                  <span className="quick-action-label">New Trip</span>
+                </button>
+                <button
+                  type="button"
+                  className="quick-action-tile"
+                  onClick={() => navigate('/trips')}
+                >
+                  <span className="quick-action-icon">🌍</span>
+                  <span className="quick-action-label">All Trips</span>
+                </button>
+                <button
+                  type="button"
+                  className="quick-action-tile"
+                  onClick={() => navigate('/reports')}
+                >
+                  <span className="quick-action-icon">📊</span>
+                  <span className="quick-action-label">Reports</span>
+                </button>
+                <button
+                  type="button"
+                  className="quick-action-tile"
+                  onClick={() => navigate('/notifications')}
+                >
+                  <span className="quick-action-icon">🔔</span>
+                  <span className="quick-action-label">Alerts</span>
+                </button>
+              </div>
+            </div>
 
             {/* Quick Currency Converter */}
             <CurrencyConverter 
