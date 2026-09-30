@@ -44,12 +44,13 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 55%;
-  height: 48%;
+  width: 62%;
+  height: 58%;
   background: radial-gradient(circle at bottom left,
-      rgba(0, 0, 0, 0.55) 0%,
-      rgba(0, 0, 0, 0.2) 45%,
-      rgba(0, 0, 0, 0) 75%);
+      rgba(10, 15, 30, 0.72) 0%,
+      rgba(10, 15, 30, 0.42) 45%,
+      rgba(10, 15, 30, 0.12) 75%,
+      rgba(10, 15, 30, 0) 100%);
   pointer-events: none;
   z-index: 5;
 }
@@ -65,7 +66,6 @@
   pointer-events: auto;
 }
 
-/* Bottom-left block blends seamlessly with contrast-mask, no blur effect */
 .tourist-carousel__glass-card {
   background: transparent !important;
   backdrop-filter: none !important;
@@ -75,60 +75,65 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   max-width: 590px;
 }
 
-[data-theme='light'] .tourist-carousel__glass-card,
-[data-theme='dark'] .tourist-carousel__glass-card {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* Active Location Details inside Card */
+/* Active Location Details with localized frosted glass backing for guaranteed readability */
 .tourist-carousel__location-info {
   color: #ffffff;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 14px 18px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
+  max-width: 520px;
 }
 
 .tourist-carousel__place-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .tourist-carousel__pin-icon {
   display: block;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
 .tourist-carousel__place-title {
   font-size: 1.25rem;
-  line-height: 1.2;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  line-height: 1.25;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .place-name {
-  font-weight: 700;
+  font-weight: 800;
   color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
 .place-country {
-  font-weight: 400;
-  color: #e2e8f0;
+  font-weight: 500;
+  color: #93c5fd;
+  font-size: 1.02rem;
 }
 
 .tourist-carousel__description {
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: #e2e8f0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  padding-left: 30px;
-  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.48;
+  color: #f1f5f9;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+  padding-left: 0;
+  margin: 4px 0 0 0;
   white-space: pre-line;
 }
 
