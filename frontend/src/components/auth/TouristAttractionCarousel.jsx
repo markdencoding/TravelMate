@@ -6,7 +6,7 @@ const attractions = [
     id: 'santorini',
     name: 'Santorini',
     country: 'Greece',
-    description: 'Stunning views, charming villages,\nunforgettable moments.',
+    description: 'Stunning cliffside vistas, azure waters,\nand world-famous whitewashed architecture.',
     dayImage: '/images/attractions/santorini-day.jpg',
     nightImage: '/images/attractions/santorini-night.jpg'
   },
@@ -14,7 +14,7 @@ const attractions = [
     id: 'paris',
     name: 'Paris',
     country: 'France',
-    description: 'Experience iconic landmarks, beautiful streets,\nand unforgettable evenings.',
+    description: 'Experience iconic landmarks, romantic boulevards,\nand unforgettable evenings along the Seine.',
     dayImage: '/images/attractions/paris-day.jpg',
     nightImage: '/images/attractions/paris-night.jpg'
   },
@@ -22,7 +22,7 @@ const attractions = [
     id: 'venice',
     name: 'Venice',
     country: 'Italy',
-    description: 'Navigate the historic Grand Canal in a gondola,\nsurrounded by vibrant architecture.',
+    description: 'Navigate the historic Grand Canal in a gondola,\nsurrounded by centuries of vibrant culture.',
     dayImage: '/images/attractions/venice-day.jpg',
     nightImage: '/images/attractions/venice-night.jpg'
   },
@@ -30,7 +30,7 @@ const attractions = [
     id: 'swiss-alps',
     name: 'Swiss Alps',
     country: 'Switzerland',
-    description: 'Breathe in the crisp mountain air\nin picturesque snowy villages.',
+    description: 'Breathe in the crisp mountain air\namongst majestic snow-capped peaks and alpine valleys.',
     dayImage: '/images/attractions/swiss-alps-day.jpg',
     nightImage: '/images/attractions/swiss-alps-night.jpg'
   },
@@ -38,15 +38,73 @@ const attractions = [
     id: 'kyoto',
     name: 'Kyoto',
     country: 'Japan',
-    description: 'Wander through serene temples, ancient shrines,\nand vibrant traditional streets.',
+    description: 'Wander through serene bamboo groves, sacred shrines,\nand timeless lantern-lit stone alleys.',
     dayImage: '/images/attractions/kyoto-day.jpg',
     nightImage: '/images/attractions/kyoto-night.jpg'
+  },
+  {
+    id: 'tokyo',
+    name: 'Tokyo',
+    country: 'Japan',
+    description: 'Discover futuristic cityscapes, vibrant night districts,\nand rich traditional heritage side-by-side.',
+    dayImage: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1536098565842-c4b11ac5d194?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'bali',
+    name: 'Bali',
+    country: 'Indonesia',
+    description: 'Immerse yourself in lush emerald terraces, sacred temples,\nand tranquil coastal sunsets.',
+    dayImage: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'new-york',
+    name: 'New York',
+    country: 'United States',
+    description: 'Feel the energy of the world’s most iconic skyline,\nlimitless culture, and illuminated avenues.',
+    dayImage: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1518235506717-e1ed3306a89b?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'rome',
+    name: 'Rome',
+    country: 'Italy',
+    description: 'Step into ancient history through timeless Colosseum vistas,\npiazzas, and golden hour warmth.',
+    dayImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'sydney',
+    name: 'Sydney',
+    country: 'Australia',
+    description: 'Marvel at the sparkling harbor waters, iconic Opera House,\nand world-famous coastal lifestyle.',
+    dayImage: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1528072164453-f4e8ef0d475a?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'banff',
+    name: 'Banff',
+    country: 'Canada',
+    description: 'Experience crystal turquoise glacial lakes, towering Rockies,\nand pristine starry wilderness.',
+    dayImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80'
+  },
+  {
+    id: 'dubai',
+    name: 'Dubai',
+    country: 'United Arab Emirates',
+    description: 'Gaze upon record-breaking architectural marvels,\nluxurious desert horizons, and golden skylines.',
+    dayImage: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=80',
+    nightImage: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1600&q=80'
   }
 ];
 
 export default function TouristAttractionCarousel({ theme = 'light' }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Random tourist spot on initialization for every new session/opening
+  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * attractions.length));
   const timerRef = useRef(null);
+  const thumbnailStripRef = useRef(null);
 
   const startTimer = useCallback(() => {
     if (timerRef.current) {
@@ -63,6 +121,16 @@ export default function TouristAttractionCarousel({ theme = 'light' }) {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [startTimer]);
+
+  // Smoothly scroll active thumbnail into view
+  useEffect(() => {
+    if (thumbnailStripRef.current) {
+      const activeThumb = thumbnailStripRef.current.querySelector('.tourist-carousel__thumbnail.active');
+      if (activeThumb) {
+        activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [currentIndex]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % attractions.length);
@@ -138,7 +206,7 @@ export default function TouristAttractionCarousel({ theme = 'light' }) {
               </svg>
             </button>
             
-            <div className="tourist-carousel__thumbnails-strip">
+            <div className="tourist-carousel__thumbnails-strip" ref={thumbnailStripRef}>
               {attractions.map((attr, index) => {
                 const isActive = index === currentIndex;
                 const thumbSrc = theme === 'dark' ? attr.nightImage : attr.dayImage;

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import notificationService from '../../services/notificationService';
 import NotificationBell from './NotificationBell';
+import { getInitialTheme, saveThemePreference } from '../../utils/themeUtils';
 import './AppLayout.css';
 
 /**
@@ -16,11 +17,10 @@ export default function AppLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [theme, setTheme] = useState(localStorage.getItem('travelmate-theme') || 'light');
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('travelmate-theme', theme);
   }, [theme]);
 
   useEffect(() => {
@@ -46,7 +46,13 @@ export default function AppLayout() {
   };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
-  const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      saveThemePreference(next);
+      return next;
+    });
+  };
 
   return (
     <div className={`app-layout ${sidebarCollapsed ? 'app-layout--collapsed' : ''}`}>

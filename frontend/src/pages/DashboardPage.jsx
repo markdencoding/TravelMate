@@ -6,7 +6,6 @@ import api from '../services/api';
 import currencyService from '../services/currencyService';
 import EmptyState from '../components/common/EmptyState';
 import WeatherWidget from '../components/weather/WeatherWidget';
-import CurrencyConverter from '../components/currency/CurrencyConverter';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -354,15 +353,6 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-
-            {/* Quick Currency Converter */}
-            <CurrencyConverter 
-              compact 
-              initialFrom={spotlightBaseCurrency}
-              initialTo={spotlightDestCurrency}
-              initialAmount={spotlightTrip?.budget_summary?.remaining_budget || 5000}
-              title="Currency Converter"
-            />
           </div>
         </div>
       )}

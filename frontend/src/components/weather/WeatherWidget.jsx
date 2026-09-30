@@ -304,13 +304,17 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
           </div>
         </div>
 
-        {/* Slide Container: Current vs Trip Date */}
+        {/* Slide Container: Current vs Trip Date (Strictly fixed height to eliminate any layout shift) */}
         <div className="weather-slide-container">
           {/* SLIDE 0: Current Weather */}
           {activeSlide === 0 && (
             <div className="weather-slide current-slide animate-fade-in">
+              <div className="weather-slide-label text-[11px] text-muted font-bold mb-0.5">
+                ☀️ Current Observation
+              </div>
+
               <div className="weather-body flex justify-between items-center">
-                <div>
+                <div className="weather-main-info">
                   <div className="weather-temp-row flex items-baseline gap-2">
                     <span className="weather-temp text-2xl font-black text-primary">
                       {Math.round(current.temperature)}°C
@@ -319,11 +323,9 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                       {current.condition}
                     </span>
                   </div>
-                  {current.description && (
-                    <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
-                      {current.description}
-                    </p>
-                  )}
+                  <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
+                    {current.description || current.condition || 'Clear weather'}
+                  </p>
                 </div>
 
                 <div className="weather-icon-wrapper" style={{ width: '40px', height: '40px' }}>
@@ -342,13 +344,13 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
           {activeSlide === 1 && (
             <div className="weather-slide forecast-slide animate-fade-in">
               {forecast && forecast.available ? (
-                <div>
-                  <div className="weather-forecast-date text-[11px] text-primary font-bold mb-0.5">
+                <div className="weather-slide-inner">
+                  <div className="weather-slide-label text-[11px] text-primary font-bold mb-0.5">
                     📅 {formatTripDate(forecast.date || tripDate)}
                   </div>
 
                   <div className="weather-body flex justify-between items-center">
-                    <div>
+                    <div className="weather-main-info">
                       <div className="weather-temp-row flex items-baseline gap-2">
                         <span className="weather-temp text-2xl font-black text-primary">
                           {forecast.temperature}°C
@@ -362,11 +364,9 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                           {forecast.condition}
                         </span>
                       </div>
-                      {forecast.description && (
-                        <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
-                          {forecast.description}
-                        </p>
-                      )}
+                      <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
+                        {forecast.description || forecast.condition || 'Expected forecast'}
+                      </p>
                     </div>
 
                     <div className="weather-icon-wrapper" style={{ width: '40px', height: '40px' }}>
@@ -380,13 +380,20 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                   </div>
                 </div>
               ) : (
-                /* Fallback for trip dates beyond forecast range */
-                <div className="weather-unavailable-card p-2 text-center">
-                  <span className="text-base">🔭</span>
-                  <h5 className="text-[11px] font-bold text-main mt-0.5">Forecast unavailable for this date yet.</h5>
-                  <span className="text-[10px] text-muted opacity-80 mt-0.5 block font-medium">
-                    Scheduled: {formatTripDate(tripDate)}
-                  </span>
+                /* Fallback for trip dates beyond forecast range - perfectly fitted inside slide frame */
+                <div className="weather-unavailable-slide">
+                  <div className="weather-slide-label text-[11px] text-primary font-bold mb-0.5">
+                    📅 {formatTripDate(tripDate)}
+                  </div>
+                  <div className="weather-unavailable-card p-2 flex items-center gap-2">
+                    <span className="text-xl flex-shrink-0">🔭</span>
+                    <div className="min-w-0">
+                      <h5 className="text-[11px] font-bold text-main m-0 truncate">Forecast unavailable for this date yet.</h5>
+                      <span className="text-[10px] text-muted opacity-80 block truncate">
+                        Scheduled: {formatTripDate(tripDate)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

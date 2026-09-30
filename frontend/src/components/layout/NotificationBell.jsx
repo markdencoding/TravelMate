@@ -89,13 +89,32 @@ export default function NotificationBell({ unreadCount, onUpdateUnread }) {
     }
   };
 
-  const formatTime = (dateStr) => {
+  const formatRelativeTime = (dateStr) => {
     if (!dateStr) return '';
     try {
+      const now = new Date();
       const d = new Date(dateStr);
+      const diffSec = Math.floor((now - d) / 1000);
+      if (diffSec < 60) return 'Just now';
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) return `${diffHour}h ago`;
+      const diffDays = Math.floor(diffHour / 24);
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch {
       return '';
+    }
+  };
+
+  const getTypeStyle = (type) => {
+    switch (type) {
+      case 'trip': return { icon: '✈️', badgeClass: 'notif-badge-trip' };
+      case 'reminder': return { icon: '📅', badgeClass: 'notif-badge-reminder' };
+      case 'budget': return { icon: '💰', badgeClass: 'notif-badge-budget' };
+      default: return { icon: '🔔', badgeClass: 'notif-badge-default' };
     }
   };
 
@@ -103,7 +122,7 @@ export default function NotificationBell({ unreadCount, onUpdateUnread }) {
     <div className="notification-bell-wrapper" ref={dropdownRef}>
       <button
         type="button"
-        className="notification-bell-btn"
+        className={`notification-bell-btn ${open ? 'active' : ''}`}
         onClick={handleToggle}
         aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
         aria-expanded={open}
@@ -135,71 +154,93 @@ export default function NotificationBell({ unreadCount, onUpdateUnread }) {
 
       {/* Dropdown Panel */}
       {open && (
-        <div className="notification-dropdown animate-fade-in" role="dialog" aria-label="Notifications preview">
-          <div className="notification-dropdown__header flex justify-between items-center p-3 border-b border-border">
-            <h4 className="font-bold text-sm">Notifications</h4>
+        <div className="notification-dropdown animate-scale-in" role="dialog" aria-label="Notifications preview">
+          {/* Header */}
+          <div className="notification-dropdown__header flex justify-between items-center px-3.5 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <h4 className="font-bold text-sm text-main m-0">Notifications</h4>
+              {unreadCount > 0 && (
+                <span className="notification-unread-count-tag text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {unreadCount} new
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   type="button"
                   onClick={handleMarkAllRead}
-                  className="text-xs text-muted hover:text-primary transition-colors"
+                  className="notification-mark-all-btn text-[11px] font-semibold text-muted hover:text-primary transition-colors cursor-pointer bg-transparent border-0 p-0"
                 >
                   Mark all read
                 </button>
               )}
-              <Link
-                to="/notifications"
-                className="text-xs text-primary font-semibold hover:underline"
-                onClick={() => setOpen(false)}
-              >
-                View All
-              </Link>
             </div>
           </div>
 
+          {/* List Content */}
           <div className="notification-dropdown__list">
             {loading ? (
-              <div className="p-4 text-center text-xs text-muted">Loading notifications...</div>
+              <div className="p-6 text-center text-xs text-muted">
+                <div className="notification-loading-spinner mb-2">⏳</div>
+                Loading notifications...
+              </div>
             ) : notifications.length === 0 ? (
-              <div className="p-4 text-center text-xs text-muted">
-                <span>🎉</span> No notifications right now.
+              <div className="p-6 text-center text-xs text-muted flex flex-col items-center justify-center">
+                <span className="text-2xl mb-1.5 opacity-80">🎉</span>
+                <span className="font-semibold text-main">All caught up!</span>
+                <span className="text-[11px] opacity-75 mt-0.5">No new notifications at this time.</span>
               </div>
             ) : (
-              notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className={`notification-dropdown__item p-3 flex gap-2.5 items-start cursor-pointer border-b border-border transition-colors ${!notif.is_read ? 'unread' : ''}`}
-                  onClick={() => handleNotificationClick(notif)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick(notif)}
-                >
-                  <span className="notification-dropdown__icon text-base leading-none mt-0.5">
-                    {getIcon(notif.type)}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-1">
-                      <h5 className="text-xs font-bold text-main truncate">{notif.title}</h5>
-                      <span className="text-[10px] text-muted whitespace-nowrap">{formatTime(notif.created_at)}</span>
+              notifications.map((notif) => {
+                const { icon, badgeClass } = getTypeStyle(notif.type);
+                const isUnread = !notif.is_read;
+
+                return (
+                  <div
+                    key={notif.id}
+                    className={`notification-dropdown__item px-3.5 py-2.5 flex gap-2.5 items-start cursor-pointer border-b border-border transition-colors ${isUnread ? 'unread' : ''}`}
+                    onClick={() => handleNotificationClick(notif)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleNotificationClick(notif)}
+                  >
+                    <div className={`notification-item-icon-wrap ${badgeClass}`} aria-hidden="true">
+                      {icon}
                     </div>
-                    <p className="text-xs text-muted line-clamp-2 mt-0.5 leading-snug">{notif.message}</p>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-baseline gap-1.5 mb-0.5">
+                        <h5 className={`text-xs m-0 truncate ${isUnread ? 'font-bold text-main' : 'font-medium text-main'}`}>
+                          {notif.title}
+                        </h5>
+                        <span className="text-[10px] text-muted whitespace-nowrap flex-shrink-0">
+                          {formatRelativeTime(notif.created_at)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted line-clamp-2 m-0 leading-snug">
+                        {notif.message}
+                      </p>
+                    </div>
+
+                    {isUnread && (
+                      <span className="notification-unread-dot" title="Unread" aria-label="Unread notification" />
+                    )}
                   </div>
-                  {!notif.is_read && (
-                    <span className="notification-unread-dot" title="Unread" />
-                  )}
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
-          <div className="notification-dropdown__footer p-2 text-center bg-surface-secondary">
+          {/* Footer */}
+          <div className="notification-dropdown__footer p-2 text-center border-t border-border">
             <Link
               to="/notifications"
-              className="text-xs text-primary font-medium hover:underline block py-0.5"
+              className="notification-view-all-link text-xs text-primary font-semibold hover:underline flex items-center justify-center gap-1 py-1"
               onClick={() => setOpen(false)}
             >
-              See all notifications in Notification Center →
+              <span>View all notifications</span>
+              <span aria-hidden="true">→</span>
             </Link>
           </div>
         </div>

@@ -1,3 +1,7 @@
+/* ============================================================
+   Notification Bell & Dropdown Styles — TravelMate Design System
+   ============================================================ */
+
 .notification-bell-wrapper {
   position: relative;
   display: inline-flex;
@@ -8,8 +12,8 @@
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-main);
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -19,7 +23,8 @@
   transition: all var(--transition-fast);
 }
 
-.notification-bell-btn:hover {
+.notification-bell-btn:hover,
+.notification-bell-btn.active {
   background-color: var(--color-surface-hover);
   border-color: var(--color-primary);
   color: var(--color-primary);
@@ -37,8 +42,8 @@
 
 .notification-bell-badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
+  top: -2px;
+  right: -2px;
   background-color: #ef4444;
   color: #ffffff;
   font-size: 10px;
@@ -51,7 +56,8 @@
   justify-content: center;
   padding: 0 4px;
   border: 2px solid var(--color-surface);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  line-height: 1;
 }
 
 /* Notification Dropdown Panel */
@@ -59,35 +65,106 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 320px;
-  max-width: 90vw;
+  width: 340px;
+  max-width: calc(100vw - 24px);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
   z-index: 1000;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.animate-scale-in {
+  animation: notifScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+@keyframes notifScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .notification-dropdown__header {
   background-color: var(--color-surface);
 }
 
+.notification-unread-count-tag {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+
 .notification-dropdown__list {
-  max-height: 320px;
+  max-height: 340px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.notification-dropdown__list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.notification-dropdown__list::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 3px;
 }
 
 .notification-dropdown__item {
   background-color: var(--color-surface);
+  text-align: left;
+  outline: none;
+  position: relative;
 }
 
-.notification-dropdown__item:hover {
+.notification-dropdown__item:hover,
+.notification-dropdown__item:focus-visible {
   background-color: var(--color-surface-hover);
 }
 
 .notification-dropdown__item.unread {
-  background-color: var(--color-primary-light);
+  background-color: rgba(37, 99, 235, 0.04);
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(0.875rem - 3px);
+}
+
+[data-theme='dark'] .notification-dropdown__item.unread {
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+.notification-item-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.notif-badge-trip {
+  background-color: rgba(37, 99, 235, 0.12);
+}
+
+.notif-badge-reminder {
+  background-color: rgba(245, 158, 11, 0.12);
+}
+
+.notif-badge-budget {
+  background-color: rgba(16, 185, 129, 0.12);
+}
+
+.notif-badge-default {
+  background-color: var(--color-surface-secondary);
 }
 
 .notification-unread-dot {
@@ -96,16 +173,21 @@
   border-radius: 50%;
   background-color: var(--color-primary);
   flex-shrink: 0;
-  margin-top: 5px;
+  margin-top: 4px;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
 }
 
 .notification-dropdown__footer {
-  border-top: 1px solid var(--color-border);
+  background-color: var(--color-surface-secondary);
+}
+
+.notification-view-all-link {
+  transition: all var(--transition-fast);
 }
 
 @media (max-width: 480px) {
   .notification-dropdown {
-    right: -40px;
-    width: 290px;
+    right: -10px;
+    width: 320px;
   }
 }

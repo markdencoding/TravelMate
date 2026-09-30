@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import TouristAttractionCarousel from '../auth/TouristAttractionCarousel';
+import { getInitialTheme, saveThemePreference } from '../../utils/themeUtils';
 import './AuthLayout.css';
 
 /**
@@ -8,14 +9,19 @@ import './AuthLayout.css';
  * Continuous cinematic background with floating frosted glass card matching reference image.
  */
 export default function AuthLayout() {
-  const [theme, setTheme] = useState(localStorage.getItem('travelmate-theme') || 'light');
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('travelmate-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const toggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      saveThemePreference(next);
+      return next;
+    });
+  };
 
   return (
     <div className="auth-layout" data-auth-theme={theme}>

@@ -168,6 +168,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-width: min(480px, calc(100vw - 150px));
+  scroll-behavior: smooth;
+  padding: 4px 2px;
+}
+
+.tourist-carousel__thumbnails-strip::-webkit-scrollbar {
+  display: none;
 }
 
 /* Mini pictures of places — STRICTLY BORDERLESS */
