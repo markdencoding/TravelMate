@@ -420,7 +420,7 @@
 /* Content Area */
 .app-layout__content {
   flex: 1;
-  padding: var(--space-xl);
+  padding: var(--space-lg) var(--space-xl);
   overflow-x: hidden;
 }
 

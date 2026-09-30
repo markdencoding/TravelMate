@@ -179,8 +179,8 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
   const dailyForecast = weather.daily_forecast || [];
   const hasTripDate = Boolean(tripDate);
 
-  // SVG Temperature Sparkline Calculations
-  const renderSparkline = (customWidth = 280, customHeight = 48) => {
+  // SVG Temperature Sparkline Calculations (Compact and lightweight)
+  const renderSparkline = (customWidth = 260, customHeight = 32) => {
     if (!dailyForecast || dailyForecast.length < 2) return null;
 
     const temps = dailyForecast.map(d => d.temperature_max);
@@ -190,13 +190,13 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
 
     const width = customWidth;
     const height = customHeight;
-    const padding = 16;
+    const padding = 12;
     const usableWidth = width - padding * 2;
-    const usableHeight = height - 16;
+    const usableHeight = height - 10;
 
     const points = dailyForecast.map((d, idx) => {
       const x = padding + (idx / (dailyForecast.length - 1)) * usableWidth;
-      const y = height - 8 - ((d.temperature_max - minT) / range) * usableHeight;
+      const y = height - 6 - ((d.temperature_max - minT) / range) * usableHeight;
       return { x, y, temp: d.temperature_max, day: d.day };
     });
 
@@ -207,28 +207,28 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
     const areaD = `${pathD} L ${points[points.length - 1].x},${height} L ${points[0].x},${height} Z`;
 
     return (
-      <div className="weather-sparkline-container mt-3 pt-2 border-t border-border">
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-[11px] font-bold text-muted uppercase tracking-wider">
-            Temperature Trend (°C)
+      <div className="weather-sparkline-container mt-2 pt-1.5 border-t border-border">
+        <div className="flex justify-between items-center mb-0.5">
+          <span className="text-[10px] font-bold text-muted uppercase tracking-wider">
+            Trend (°C)
           </span>
           <span className="text-[10px] text-primary font-semibold">
-            High: {Math.max(...temps)}° | Low: {Math.min(...dailyForecast.map(d => d.temperature_min))}°
+            H: {Math.max(...temps)}° | L: {Math.min(...dailyForecast.map(d => d.temperature_min))}°
           </span>
         </div>
-        <svg viewBox={`0 0 ${width} ${height}`} className="weather-sparkline-svg" aria-hidden="true">
+        <svg viewBox={`0 0 ${width} ${height}`} className="weather-sparkline-svg" aria-hidden="true" style={{ height: `${height}px` }}>
           <defs>
             <linearGradient id="weatherTempGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.2" />
               <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0.0" />
             </linearGradient>
           </defs>
           <path d={areaD} fill="url(#weatherTempGrad)" />
-          <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={pathD} fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           {points.map((pt, i) => (
             <g key={i}>
-              <circle cx={pt.x} cy={pt.y} r="3" fill="var(--color-surface)" stroke="var(--color-primary)" strokeWidth="2" />
-              <text x={pt.x} y={pt.y - 6} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--color-text-main)">
+              <circle cx={pt.x} cy={pt.y} r="2.5" fill="var(--color-surface)" stroke="var(--color-primary)" strokeWidth="1.5" />
+              <text x={pt.x} y={pt.y - 4} textAnchor="middle" fontSize="8" fontWeight="700" fill="var(--color-text-main)">
                 {pt.temp}°
               </text>
             </g>
@@ -252,19 +252,19 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
         aria-label={`Weather forecast for ${locationName || 'destination'}`}
       >
         {/* Slideshow Top Header */}
-        <div className="weather-header flex justify-between items-center mb-3">
-          <div className="weather-title-area">
-            <span className="weather-badge">
-              {activeSlide === 0 ? '☀️ Live Weather' : '📅 Trip Forecast'}
+        <div className="weather-header flex justify-between items-center mb-2">
+          <div className="weather-title-area flex items-center gap-1.5 min-w-0 pr-1">
+            <span className="weather-badge py-0.5 px-2">
+              {activeSlide === 0 ? '☀️ Live' : '📅 Forecast'}
             </span>
             {locationName && (
-              <span className="weather-location text-xs font-semibold block mt-1" title={locationName}>
+              <span className="weather-location text-xs font-bold truncate" title={locationName}>
                 📍 {locationName}
               </span>
             )}
           </div>
 
-          <div className="weather-header-actions flex items-center gap-2">
+          <div className="weather-header-actions flex items-center gap-1.5">
             {/* Tab Controls (if tripDate is provided) */}
             {hasTripDate && (
               <div className="weather-tabs" role="tablist" aria-label="Weather view tabs">
@@ -275,7 +275,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                   className={`weather-tab-btn ${activeSlide === 0 ? 'active' : ''}`}
                   onClick={() => setActiveSlide(0)}
                 >
-                  Current
+                  Live
                 </button>
                 <button
                   type="button"
@@ -284,7 +284,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
                   className={`weather-tab-btn ${activeSlide === 1 ? 'active' : ''}`}
                   onClick={() => setActiveSlide(1)}
                 >
-                  Trip Date
+                  Trip
                 </button>
               </div>
             )}
@@ -293,13 +293,13 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
             <button
               ref={fullViewButtonRef}
               type="button"
-              className="weather-full-view-btn btn btn-ghost btn-sm"
+              className="weather-full-view-btn btn btn-ghost btn-sm text-xs py-1 px-1.5"
               onClick={() => setIsFullViewOpen(true)}
               aria-label={`Open full weather view for ${locationName || 'destination'}`}
               title="Expand full weather view"
             >
               <span className="weather-full-view-icon" aria-hidden="true">⤢</span>
-              <span className="weather-full-view-text">Full View</span>
+              <span className="weather-full-view-text hidden sm:inline text-[11px]">Full</span>
             </button>
           </div>
         </div>
@@ -312,28 +312,28 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
               <div className="weather-body flex justify-between items-center">
                 <div>
                   <div className="weather-temp-row flex items-baseline gap-2">
-                    <span className="weather-temp text-3xl font-black text-primary">
+                    <span className="weather-temp text-2xl font-black text-primary">
                       {Math.round(current.temperature)}°C
                     </span>
-                    <span className="weather-condition text-sm font-medium capitalize text-muted">
+                    <span className="weather-condition text-xs font-semibold capitalize text-muted">
                       {current.condition}
                     </span>
                   </div>
                   {current.description && (
-                    <p className="weather-desc text-xs text-muted capitalize mt-0.5">
+                    <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
                       {current.description}
                     </p>
                   )}
                 </div>
 
-                <div className="weather-icon-wrapper">
-                  <WeatherIcon icon={current.icon} condition={current.condition} size={48} />
+                <div className="weather-icon-wrapper" style={{ width: '40px', height: '40px' }}>
+                  <WeatherIcon icon={current.icon} condition={current.condition} size={38} />
                 </div>
               </div>
 
-              <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
-                <div>💧 Humidity: <span className="font-semibold text-main">{current.humidity}%</span></div>
-                <div>💨 Wind: <span className="font-semibold text-main">{current.wind_speed} m/s</span></div>
+              <div className="weather-details-grid mt-2 pt-1.5 border-t border-border flex justify-between text-[11px] text-muted">
+                <div>💧 <span className="font-semibold text-main">{current.humidity}%</span></div>
+                <div>💨 <span className="font-semibold text-main">{current.wind_speed} m/s</span></div>
               </div>
             </div>
           )}
@@ -343,51 +343,48 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
             <div className="weather-slide forecast-slide animate-fade-in">
               {forecast && forecast.available ? (
                 <div>
-                  <div className="weather-forecast-date text-xs text-primary font-bold mb-1">
+                  <div className="weather-forecast-date text-[11px] text-primary font-bold mb-0.5">
                     📅 {formatTripDate(forecast.date || tripDate)}
                   </div>
 
                   <div className="weather-body flex justify-between items-center">
                     <div>
                       <div className="weather-temp-row flex items-baseline gap-2">
-                        <span className="weather-temp text-3xl font-black text-primary">
+                        <span className="weather-temp text-2xl font-black text-primary">
                           {forecast.temperature}°C
                         </span>
                         {forecast.min_temperature !== undefined && (
-                          <span className="text-xs text-muted font-semibold">
+                          <span className="text-[11px] text-muted font-semibold">
                             / {forecast.min_temperature}°C
                           </span>
                         )}
-                        <span className="weather-condition text-sm font-medium capitalize text-muted">
+                        <span className="weather-condition text-xs font-semibold capitalize text-muted">
                           {forecast.condition}
                         </span>
                       </div>
                       {forecast.description && (
-                        <p className="weather-desc text-xs text-muted capitalize mt-0.5">
+                        <p className="weather-desc text-[11px] text-muted capitalize mt-0.5 truncate max-w-[180px]">
                           {forecast.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="weather-icon-wrapper">
-                      <WeatherIcon icon={forecast.icon} condition={forecast.condition} size={48} />
+                    <div className="weather-icon-wrapper" style={{ width: '40px', height: '40px' }}>
+                      <WeatherIcon icon={forecast.icon} condition={forecast.condition} size={38} />
                     </div>
                   </div>
 
-                  <div className="weather-details-grid mt-3 pt-2.5 border-t border-border flex justify-between text-xs text-muted">
-                    <div>🌧️ Rain: <span className="font-semibold text-main">{forecast.precipitation_probability}%</span></div>
-                    <div>💨 Wind: <span className="font-semibold text-main">{forecast.wind_speed} m/s</span></div>
+                  <div className="weather-details-grid mt-2 pt-1.5 border-t border-border flex justify-between text-[11px] text-muted">
+                    <div>🌧️ <span className="font-semibold text-main">{forecast.precipitation_probability}%</span></div>
+                    <div>💨 <span className="font-semibold text-main">{forecast.wind_speed} m/s</span></div>
                   </div>
                 </div>
               ) : (
                 /* Fallback for trip dates beyond forecast range */
-                <div className="weather-unavailable-card p-2.5 text-center">
-                  <div className="text-xl mb-1">🔭</div>
-                  <h5 className="text-xs font-bold text-main">Forecast unavailable for this date yet.</h5>
-                  <p className="text-xs text-muted mt-1 leading-relaxed">
-                    Forecasts are available up to 16 days ahead. Check back closer to your trip date.
-                  </p>
-                  <span className="text-[10px] text-muted opacity-80 mt-1 block font-semibold">
+                <div className="weather-unavailable-card p-2 text-center">
+                  <span className="text-base">🔭</span>
+                  <h5 className="text-[11px] font-bold text-main mt-0.5">Forecast unavailable for this date yet.</h5>
+                  <span className="text-[10px] text-muted opacity-80 mt-0.5 block font-medium">
                     Scheduled: {formatTripDate(tripDate)}
                   </span>
                 </div>
@@ -398,16 +395,16 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
 
         {/* GRAPHICAL FORECAST CARDS */}
         {dailyForecast.length > 0 && (
-          <div className="weather-daily-forecast-section mt-3 pt-2.5 border-t border-border">
-            <div className="weather-daily-grid flex gap-1.5 overflow-x-auto pb-1">
+          <div className="weather-daily-forecast-section mt-2 pt-1.5 border-t border-border">
+            <div className="weather-daily-grid flex gap-1 overflow-x-auto pb-0.5">
               {dailyForecast.map((dayItem, idx) => (
-                <div key={idx} className={`weather-daily-pill ${idx === 0 ? 'today' : ''}`}>
-                  <span className="weather-daily-pill__day">{dayItem.day}</span>
-                  <WeatherIcon icon={dayItem.icon} condition={dayItem.condition} size={24} />
-                  <span className="weather-daily-pill__temp">{dayItem.temperature_max}°</span>
-                  <span className="weather-daily-pill__min-temp">{dayItem.temperature_min}°</span>
+                <div key={idx} className={`weather-daily-pill ${idx === 0 ? 'today' : ''} py-1 px-1.5`}>
+                  <span className="weather-daily-pill__day text-[10px]">{dayItem.day}</span>
+                  <WeatherIcon icon={dayItem.icon} condition={dayItem.condition} size={20} />
+                  <span className="weather-daily-pill__temp text-[11px]">{dayItem.temperature_max}°</span>
+                  <span className="weather-daily-pill__min-temp text-[9px]">{dayItem.temperature_min}°</span>
                   {dayItem.precipitation_probability > 0 && (
-                    <span className="weather-daily-pill__rain" title={`Rain probability: ${dayItem.precipitation_probability}%`}>
+                    <span className="weather-daily-pill__rain text-[9px]" title={`Rain probability: ${dayItem.precipitation_probability}%`}>
                       💧{dayItem.precipitation_probability}%
                     </span>
                   )}
@@ -422,10 +419,10 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
 
         {/* Slideshow Footer Controls (if tripDate is provided) */}
         {hasTripDate && (
-          <div className="weather-controls flex justify-between items-center mt-3 pt-2 border-t border-border">
+          <div className="weather-controls flex justify-between items-center mt-2 pt-1.5 border-t border-border">
             <button 
               type="button" 
-              className="weather-nav-btn prev"
+              className="weather-nav-btn prev text-xs py-0.5 px-1.5"
               onClick={prevSlide}
               aria-label="Previous weather slide"
               title="Previous slide"
@@ -433,7 +430,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
               ‹
             </button>
 
-            <div className="weather-dots flex gap-1.5" role="tablist" aria-label="Slide indicators">
+            <div className="weather-dots flex gap-1" role="tablist" aria-label="Slide indicators">
               <button
                 type="button"
                 className={`weather-dot ${activeSlide === 0 ? 'active' : ''}`}
@@ -452,7 +449,7 @@ export default function WeatherWidget({ latitude, longitude, locationName, tripD
 
             <button 
               type="button" 
-              className="weather-nav-btn next"
+              className="weather-nav-btn next text-xs py-0.5 px-1.5"
               onClick={nextSlide}
               aria-label="Next weather slide"
               title="Next slide"

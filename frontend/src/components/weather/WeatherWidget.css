@@ -3,8 +3,8 @@
    ============================================================ */
 
 .weather-widget {
-  padding: var(--space-lg);
-  border-radius: var(--radius-xl);
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
@@ -29,16 +29,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 140px;
+  min-height: 110px;
 }
 
 .weather-badge {
   display: inline-block;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 2px 8px;
+  padding: 1.5px 6px;
   border-radius: var(--radius-full);
   background-color: var(--color-primary-light);
   color: var(--color-primary);
@@ -46,7 +46,7 @@
 
 .weather-location {
   color: var(--color-text-main);
-  max-width: 170px;
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -62,10 +62,10 @@
 .weather-full-view-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: 3px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: var(--radius-md);
   color: var(--color-primary);
   border: 1px solid transparent;
@@ -79,7 +79,7 @@
 }
 
 .weather-full-view-icon {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
 }
 
@@ -88,16 +88,16 @@
   background-color: var(--color-surface-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  padding: 2px;
-  gap: 2px;
+  padding: 1.5px;
+  gap: 1.5px;
 }
 
 .weather-tab-btn {
   background: transparent;
   border: none;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
   color: var(--color-text-muted);
   cursor: pointer;
@@ -115,7 +115,7 @@
 }
 
 .weather-slide-container {
-  min-height: 85px;
+  min-height: 56px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -144,13 +144,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
 }
 
 .weather-icon-img {
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
@@ -162,24 +160,24 @@
 
 .weather-unavailable-card {
   background-color: var(--color-surface-secondary);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   border: 1px dashed var(--color-border);
-  padding: var(--space-sm) var(--space-md);
+  padding: 6px 10px;
 }
 
 /* Graphical Forecast Pills / Cards */
 .weather-daily-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
 }
 
 .weather-daily-pill {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 2px;
-  border-radius: var(--radius-md);
+  padding: 4px 1px;
+  border-radius: var(--radius-sm);
   background-color: var(--color-surface-secondary);
   border: 1px solid transparent;
   transition: all var(--transition-fast);
@@ -197,20 +195,20 @@
 }
 
 .weather-daily-pill__day {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--color-text-main);
   text-align: center;
 }
 
 .weather-daily-pill__temp {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--color-primary);
 }
 
 .weather-daily-pill__min-temp {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--color-text-muted);
 }
 
@@ -228,7 +226,7 @@
 
 .weather-sparkline-svg {
   width: 100%;
-  height: 48px;
+  height: 32px;
   overflow: visible;
 }
 
@@ -240,14 +238,14 @@
   background: var(--color-surface-secondary);
   border: 1px solid var(--color-border);
   color: var(--color-text-main);
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   padding: 0;
   transition: all var(--transition-fast);
@@ -265,8 +263,8 @@
 }
 
 .weather-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: var(--color-border);
   border: none;
@@ -277,8 +275,8 @@
 
 .weather-dot.active {
   background-color: var(--color-primary);
-  width: 18px;
-  border-radius: 4px;
+  width: 14px;
+  border-radius: 3px;
 }
 
 .weather-loading-icon {
