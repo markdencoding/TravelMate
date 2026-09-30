@@ -80,15 +80,6 @@ export default function NotificationBell({ unreadCount, onUpdateUnread }) {
     navigate('/notifications');
   };
 
-  const getIcon = (type) => {
-    switch (type) {
-      case 'trip': return '✈️';
-      case 'reminder': return '📅';
-      case 'budget': return '💰';
-      default: return '🔔';
-    }
-  };
-
   const formatRelativeTime = (dateStr) => {
     if (!dateStr) return '';
     try {
