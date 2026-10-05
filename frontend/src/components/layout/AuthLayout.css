@@ -313,9 +313,11 @@
 
 @media (max-width: 980px) {
   .auth-layout {
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh;
   }
 
   .auth-layout__slideshow {
@@ -326,18 +328,18 @@
     position: fixed;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0.2) 0%,
       rgba(0, 0, 0, 0.4) 40%,
-      rgba(0, 0, 0, 0.75) 100%
+      rgba(0, 0, 0, 0.85) 100%
     );
   }
 
   [data-theme='dark'] .auth-layout__fade {
     background: linear-gradient(
       to bottom,
-      rgba(5, 10, 20, 0.1) 0%,
-      rgba(5, 10, 20, 0.5) 40%,
-      rgba(5, 10, 20, 0.85) 100%
+      rgba(5, 10, 20, 0.3) 0%,
+      rgba(5, 10, 20, 0.6) 40%,
+      rgba(5, 10, 20, 0.95) 100%
     );
   }
 
@@ -351,36 +353,31 @@
   }
 
   .auth-layout__hero {
-    position: relative;
-    top: auto;
-    left: auto;
-    margin-top: 84px;
-    padding: 0 24px;
-    max-width: none;
-  }
-
-  .auth-hero-heading {
-    font-size: 2.3rem;
-    margin-bottom: 14px;
-  }
-
-  .auth-hero-subtext {
-    font-size: 0.95rem;
+    display: none; /* Hide hero on mobile to create a clean, app-like experience */
   }
 
   .auth-layout__panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
     top: auto;
     bottom: auto;
     right: auto;
     width: 100%;
-    margin: 30px auto 40px;
-    padding: 0 20px;
+    margin: 0;
+    padding: 90px 20px 140px 20px; /* Prevent overlap with header and thumbnails */
   }
 
   .auth-layout__card {
     padding: 32px 24px;
     border-radius: 22px;
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  [data-theme='dark'] .auth-layout__card {
+    background: rgba(15, 23, 42, 0.6);
   }
 }
 
@@ -395,14 +392,11 @@
   .auth-brand-tagline {
     display: none;
   }
-  .auth-hero-heading {
-    font-size: 1.9rem;
-  }
-  .auth-hero-subtext {
-    font-size: 0.9rem;
+  .auth-layout__panel {
+    padding: 80px 16px 120px 16px;
   }
   .auth-layout__card {
-    padding: 26px 18px;
+    padding: 28px 20px;
     border-radius: 20px;
   }
 }
