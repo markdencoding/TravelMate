@@ -7,8 +7,8 @@ const attractions = [
     name: 'Boracay',
     country: 'Aklan, Philippines',
     description: 'Powder-soft white sand beaches, crystalline waters,\nand vibrant world-renowned tropical sunsets.',
-    dayImage: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/boracay-day.jpg',
+    nightImage: '/images/attractions/boracay-night.jpg'
   },
   {
     id: 'santorini',
@@ -23,8 +23,8 @@ const attractions = [
     name: 'El Nido',
     country: 'Palawan, Philippines',
     description: 'Towering limestone karst cliffs, hidden lagoons,\nand untouched biodiversity in Bacuit Bay.',
-    dayImage: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/el-nido-day.jpg',
+    nightImage: '/images/attractions/el-nido-night.jpg'
   },
   {
     id: 'kyoto',
@@ -39,8 +39,8 @@ const attractions = [
     name: 'Coron',
     country: 'Palawan, Philippines',
     description: 'Emerald alpine lakes, vibrant coral reefs,\nand historic shipwreck dive adventures.',
-    dayImage: 'https://images.unsplash.com/photo-1531761535209-180857e963b9?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1509233725247-49e657c54213?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/coron-day.jpg',
+    nightImage: '/images/attractions/coron-night.jpg'
   },
   {
     id: 'paris',
@@ -55,8 +55,8 @@ const attractions = [
     name: 'Chocolate Hills',
     country: 'Bohol, Philippines',
     description: 'Over a thousand symmetrical conical hills\nblanketing lush countryside like natural monuments.',
-    dayImage: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/chocolate-hills-day.jpg',
+    nightImage: '/images/attractions/chocolate-hills-night.jpg'
   },
   {
     id: 'swiss-alps',
@@ -71,24 +71,24 @@ const attractions = [
     name: 'Banaue Rice Terraces',
     country: 'Ifugao, Philippines',
     description: 'Two-millennia-old hand-carved agricultural marvels\nflowing gracefully across the Cordillera mountains.',
-    dayImage: 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/banaue-day.jpg',
+    nightImage: '/images/attractions/banaue-night.jpg'
   },
   {
     id: 'tokyo',
     name: 'Tokyo',
     country: 'Japan',
     description: 'Discover futuristic cityscapes, vibrant night districts,\nand rich traditional heritage side-by-side.',
-    dayImage: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1536098565842-c4b11ac5d194?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/tokyo-day.jpg',
+    nightImage: '/images/attractions/tokyo-night.jpg'
   },
   {
     id: 'siargao',
     name: 'Siargao',
     country: 'Surigao del Norte, Philippines',
     description: 'The surfing capital of the Philippines with swaying palms,\ntidal rock pools, and laid-back island charm.',
-    dayImage: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/siargao-day.jpg',
+    nightImage: '/images/attractions/siargao-night.jpg'
   },
   {
     id: 'venice',
@@ -103,80 +103,80 @@ const attractions = [
     name: 'Mayon Volcano',
     country: 'Albay, Philippines',
     description: 'Renowned for its symmetrical cone silhouette,\nrising dramatically above lush green landscapes.',
-    dayImage: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/mayon-day.jpg',
+    nightImage: '/images/attractions/mayon-night.jpg'
   },
   {
     id: 'new-york',
     name: 'New York',
     country: 'United States',
-    description: 'Feel the energy of the world’s most iconic skyline,\nlimitless culture, and illuminated avenues.',
-    dayImage: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1518235506717-e1ed3306a89b?auto=format&fit=crop&w=1600&q=80'
+    description: 'Feel the energy of the world\'s most iconic skyline,\nlimitless culture, and illuminated avenues.',
+    dayImage: '/images/attractions/new-york-day.jpg',
+    nightImage: '/images/attractions/new-york-night.jpg'
   },
   {
     id: 'kawasan',
     name: 'Kawasan Falls',
     country: 'Cebu, Philippines',
     description: 'Turquoise multi-tiered cascade pools sheltered\nby lush rainforests in southern Cebu.',
-    dayImage: 'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1470240731273-7821a6eeb6bd?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/kawasan-day.jpg',
+    nightImage: '/images/attractions/kawasan-night.jpg'
   },
   {
     id: 'rome',
     name: 'Rome',
     country: 'Italy',
     description: 'Step into ancient history through timeless Colosseum vistas,\npiazzas, and golden hour warmth.',
-    dayImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/rome-day.jpg',
+    nightImage: '/images/attractions/rome-night.jpg'
   },
   {
     id: 'batanes',
     name: 'Batanes',
     country: 'Batanes, Philippines',
     description: 'Rolling hills meeting rugged Pacific coastlines,\ntraditional stone houses, and timeless peace.',
-    dayImage: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/batanes-day.jpg',
+    nightImage: '/images/attractions/batanes-night.jpg'
   },
   {
     id: 'bali',
     name: 'Bali',
     country: 'Indonesia',
     description: 'Immerse yourself in lush emerald terraces, sacred temples,\nand tranquil coastal sunsets.',
-    dayImage: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/bali-day.jpg',
+    nightImage: '/images/attractions/bali-night.jpg'
   },
   {
     id: 'intramuros',
     name: 'Intramuros',
     country: 'Manila, Philippines',
     description: 'The historic walled heart of Manila with cobblestone streets,\ncolonial fortifications, and timeless charm.',
-    dayImage: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/intramuros-day.jpg',
+    nightImage: '/images/attractions/intramuros-night.jpg'
   },
   {
     id: 'sydney',
     name: 'Sydney',
     country: 'Australia',
     description: 'Marvel at the sparkling harbor waters, iconic Opera House,\nand world-famous coastal lifestyle.',
-    dayImage: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1528072164453-f4e8ef0d475a?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/sydney-day.jpg',
+    nightImage: '/images/attractions/sydney-night.jpg'
   },
   {
     id: 'banff',
     name: 'Banff',
     country: 'Canada',
     description: 'Experience crystal turquoise glacial lakes, towering Rockies,\nand pristine starry wilderness.',
-    dayImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/banff-day.jpg',
+    nightImage: '/images/attractions/banff-night.jpg'
   },
   {
     id: 'dubai',
     name: 'Dubai',
     country: 'United Arab Emirates',
     description: 'Gaze upon record-breaking architectural marvels,\nluxurious desert horizons, and golden skylines.',
-    dayImage: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=80',
-    nightImage: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1600&q=80'
+    dayImage: '/images/attractions/dubai-day.jpg',
+    nightImage: '/images/attractions/dubai-night.jpg'
   }
 ];
 
