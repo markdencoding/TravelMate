@@ -1,161 +1,155 @@
-# TravelMate
+# 🌍 TravelMate
 
-**A Web-Based Travel and Itinerary Planning System**
+**A Comprehensive, Beautiful, and Resilient Web-Based Travel & Itinerary Planning System**
 
-TravelMate is a full-stack web application that helps travelers organize trips, manage itineraries, track expenses, and access real-time maps and weather information — all in one place.
+TravelMate is a full-stack, production-ready web application designed to help travelers effortlessly organize trips, manage day-by-day itineraries, track multi-currency expenses, and access real-time maps and weather forecasts — all wrapped in a stunning, responsive, glassmorphism-inspired user interface.
 
-## Features
+---
 
-- 🔐 **Authentication** — Secure registration, login, and JWT-based sessions
-- 🗺️ **Trip Management** — Create, edit, and organize trips
-- 📍 **Destinations** — Search and save destinations with map integration
-- 📅 **Itinerary Planning** — Day-by-day itinerary with activities
-- 💰 **Expense Tracking** — Record and categorize travel expenses
-- 🌤️ **Weather Integration** — View weather for your destinations
-- 🗾 **Maps Integration** — Location search and map display
-- 🔔 **Notifications** — Trip reminders and budget alerts
-- 📊 **Dashboard** — Overview of trips, expenses, and upcoming activities
+## ✨ Key Features
 
-## Technology Stack
+- 🔐 **Secure Authentication** — JWT-based sessions, `bcrypt` password hashing, and a robust OTP password reset system.
+- 🎨 **Premium UI/UX** — Modern, dynamic glassmorphism aesthetics, fluid micro-animations, and a highly responsive layout optimized for mobile and desktop viewports.
+- 🗺️ **Trip & Itinerary Management** — Create customized trips, organize day-by-day activities, and visualize your entire travel plan seamlessly.
+- 📍 **Destination Intelligence** — Discover and save destinations with rich geographical data.
+- 💰 **Multi-Currency Expense Tracking** — Record expenses, automatically detect country currencies, and monitor travel budgets.
+- 🌤️ **Real-time Weather & 16-Day Forecasts** — View live weather conditions and extended forecasts for any destination.
+- 🗾 **Interactive Maps** — Search locations, reverse-geocode coordinates, and view detailed maps.
+- 🔔 **Smart Notifications** — Receive automated trip reminders, budget alerts, and timely travel tips.
+
+---
+
+## 🛠️ Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19 + Vite 8 |
-| Backend | Node.js + Express.js |
-| Database | Supabase PostgreSQL |
-| Authentication | JWT (application-managed) |
-| Password Security | bcrypt |
-| API Style | REST |
-| External APIs | Maps/Location, Weather |
+| **Frontend** | React 19 + Vite 8, React Router v7, Vanilla CSS (Custom Design System) |
+| **Backend** | Node.js + Express.js, JWT, Nodemailer |
+| **Database** | PostgreSQL (Hosted on Supabase) |
+| **Map Engine** | Leaflet + React-Leaflet |
+| **Geocoding** | Mapbox (with OpenStreetMap Nominatim fallback) |
+| **Weather Data** | OpenWeatherMap (with Open-Meteo fallback) |
 
-## Project Structure
+### 🛡️ Unbreakable Architecture (Fallback Providers)
+TravelMate is engineered for resilience. If primary third-party APIs fail or API keys are missing, the application automatically switches to open-source fallbacks:
+- **Location & Geocoding:** Falls back to **OpenStreetMap Nominatim**.
+- **Weather Data:** Falls back to **Open-Meteo** (providing extensive 16-day forecasts completely free).
+- **Email Delivery (OTP):** In development, it falls back to **Ethereal** test email accounts to simulate password resets without real credentials.
 
-```
-PROJECT NGANI/
-├── frontend/               # React + Vite SPA
+---
+
+## 📂 Project Structure
+
+```text
+TravelMate/
+├── frontend/               # React + Vite Single Page Application (SPA)
 │   ├── src/
-│   │   ├── components/     # Reusable UI components
-│   │   ├── contexts/       # React context providers
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API client & service modules
-│   │   └── utils/          # Constants & utilities
-│   └── ...
-├── backend/                # Express REST API
+│   │   ├── components/     # Modular UI components (Auth, Dashboard, Maps, Weather, etc.)
+│   │   ├── pages/          # Full page layouts
+│   │   ├── services/       # Axios API client & endpoints
+│   │   └── index.css       # Global Design System (Tokens, Utilities, Glassmorphism)
+│   ├── vite.config.js      # Vite configuration & development proxy
+│   └── package.json
+├── backend/                # Node.js + Express REST API
 │   ├── src/
-│   │   ├── config/         # Environment & database config
-│   │   ├── controllers/    # Request handlers
-│   │   ├── middleware/      # Auth, validation, error handling
-│   │   ├── routes/         # Route definitions
-│   │   ├── services/       # Business logic
-│   │   └── utils/          # Helpers & custom errors
-│   └── ...
+│   │   ├── config/         # Environment variables, DB pooling, CORS
+│   │   ├── controllers/    # API request handlers
+│   │   ├── middleware/     # JWT Auth, Validation, Error handling
+│   │   ├── routes/         # Express routing definitions
+│   │   ├── services/       # Core business logic (Email, Weather, Maps, Auth)
+│   │   └── server.js       # Application Entry Point
+│   └── package.json
 ├── database/
-│   └── migrations/         # SQL migration files
-├── .env.example            # Environment variable template
-├── .gitignore
-├── DESIGN.md               # Project specification (source of truth)
+│   └── migrations/         # Sequential PostgreSQL schema files
+├── docs/                   # Documentation & Visual Audits
 └── README.md
 ```
 
-## Prerequisites
+---
 
-- **Node.js** >= 18.x
-- **npm** >= 9.x
-- **Git**
-- **Supabase** account with a PostgreSQL database
+## 🚀 Deployment Guide (Production)
 
-## Environment Setup
+TravelMate utilizes a decoupled architecture, ideal for deploying the Frontend to **Vercel** and the Backend to **Render**.
 
-1. Copy the environment template:
-   ```bash
-   cp .env.example .env
-   ```
+### 1. Backend Deployment (Render)
+1. Navigate to your [Render Dashboard](https://dashboard.render.com).
+2. Create a new **Web Service** connected to your GitHub repository.
+3. Configure the following settings:
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+4. Supply your production Environment Variables (see below).
+5. Deploy and copy your new backend URL.
 
-2. Fill in your actual values in `.env`:
-   ```env
-   PORT=5000
-   NODE_ENV=development
-   CORS_ORIGIN=http://localhost:5173
-   DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@YOUR_HOST.supabase.co:5432/postgres
-   JWT_SECRET=your-strong-random-secret
-   JWT_EXPIRES_IN=7d
-   MAPS_API_KEY=your-maps-api-key
-   WEATHER_API_KEY=your-weather-api-key
-   ```
+### 2. Frontend Deployment (Vercel)
+1. Navigate to your [Vercel Dashboard](https://vercel.com).
+2. Import the GitHub repository.
+3. Configure the following settings:
+   - **Framework Preset:** `Vite`
+   - **Root Directory:** `frontend`
+4. Add the Environment Variable: `VITE_API_URL` and set it to your Render backend URL.
+5. Deploy!
 
-3. **Never commit `.env` files** — they are excluded by `.gitignore`.
+---
 
-## Database Setup
+## 🔐 Environment Variables
 
-1. Create a Supabase project at [supabase.com](https://supabase.com).
-2. Run the migration files in order in the Supabase SQL Editor:
-   - `database/migrations/001_create_users.sql`
-   - `database/migrations/002_create_trips.sql`
-   - ... through `008_create_indexes.sql`
-3. Copy your database connection string to `DATABASE_URL` in `.env`.
+Never commit `.env` files. Copy `.env.example` to `.env` locally.
 
-## Running the Application
+### Backend (`.env` in root)
+```env
+# Server & Security
+PORT=5000
+NODE_ENV=production
+CORS_ORIGIN=https://your-vercel-frontend-url.vercel.app
+JWT_SECRET=your-strong-random-secret-key
 
-### Backend
-```bash
-cd backend
-npm install
-npm run dev        # Development (nodemon)
-# or
-npm start          # Production
+# Database
+DATABASE_URL=postgresql://postgres:[PASSWORD]@[HOST].supabase.co:5432/postgres
+
+# External Integrations (Optional due to Fallbacks)
+MAPS_API_KEY=your_mapbox_key
+WEATHER_API_KEY=your_openweathermap_key
+
+# SMTP Configuration (REQUIRED FOR PRODUCTION PASSWORD RESET)
+SMTP_HOST=smtp.your-email-provider.com
+SMTP_PORT=587
+SMTP_USER=your-email@domain.com
+SMTP_PASSWORD=your-secure-app-password
+SMTP_FROM="TravelMate <noreply@travelmate.com>"
 ```
-The API will be available at `http://localhost:5000`.
 
-### Frontend
+### Frontend (Vercel Dashboard)
+```env
+VITE_API_URL=https://your-render-backend-url.onrender.com
+```
+
+---
+
+## 💻 Local Development
+
+**Prerequisites:** Node.js (v18+), npm, and a Supabase PostgreSQL database.
+
+**1. Clone & Configure Database:**
+- Execute the SQL files located in `database/migrations/` sequentially inside your Supabase SQL editor.
+- Update `DATABASE_URL` in your `.env` file.
+
+**2. Start the Application:**
+TravelMate includes a unified script to run both servers concurrently.
+
 ```bash
-cd frontend
-npm install
+# Install dependencies for both environments
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
+
+# Start full-stack development environment
 npm run dev
 ```
-The app will be available at `http://localhost:5173`.
 
-> During development, the Vite dev server proxies `/api` requests to the backend automatically.
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5000
+- **API Health Check:** `GET /api/health`
 
-## API Endpoints
-
-### Health
-- `GET /api/health` — Server status
-
-### Authentication
-- `POST /api/auth/register` — Create account
-- `POST /api/auth/login` — Sign in
-- `POST /api/auth/logout` — Sign out
-- `GET /api/auth/me` — Current user profile
-
-*Additional endpoints (trips, destinations, itinerary, expenses, maps, weather) will be added incrementally.*
-
-## Testing
-
-```bash
-# Test backend health
-curl http://localhost:5000/api/health
-
-# Test with the frontend
-# Navigate to http://localhost:5173 in your browser
-```
-
-## Git Workflow
-
-- `main` — Stable, working version
-- `feature/<name>` — Feature branches
-- `fix/<name>` — Bug fix branches
-
-Commit messages follow conventional format:
-```
-feat: add trip management API
-fix: resolve login validation error
-docs: update README
-```
-
-## Design Specification
-
-See [DESIGN.md](./DESIGN.md) for the complete project specification.
-
-## License
-
-ISC
+---
+*Built with ❤️ for Seamless Global Travel Planning.*
